@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-calendar',
+  selector: 'liftly-calendar',
   imports: [],
   templateUrl: './calendar.html',
   styleUrl: './calendar.scss',

@@ -14,12 +14,14 @@ export default {
     },
     extend: {
       colors: {
+        secondary_bg: 'hsl(var(--secondary-bg))',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         gradient: "hsl(var(--gradient-primary))",
+        contrast: "hsl(var(--contrast-color))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -58,6 +60,9 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+      },
+      backgroundImage: {
+        primary: 'var(--primary-bg)' 
       },
       borderRadius: {
         lg: "var(--radius)",

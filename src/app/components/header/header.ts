@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'liftly-header',
@@ -6,6 +6,9 @@ import { Component } from '@angular/core';
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
-export class Header {
+export class Header implements OnInit {
+  ngOnInit(): void {
+    document.documentElement.classList.add('dark');
+  }
 
 }
