@@ -1,6 +1,7 @@
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { getEuropeDay, getMonthNameByNumber } from '../../utils/date';
 import { NgClass } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'liftly-calendar',
@@ -9,6 +10,9 @@ import { NgClass } from '@angular/common';
   styleUrl: './calendar.scss',
 })
 export class Calendar {
+  /* Injections */
+  private readonly _router = inject(Router)
+
   /* Variables */
   now = new Date();
 
@@ -36,5 +40,9 @@ export class Calendar {
     
     this.selectedMonth.set(prevMonth);
     this.selectedYear.set(prevYear);
+  }
+
+  onSelectDay(day: number): void {
+    this._router.navigate(['/training']);
   }
 }

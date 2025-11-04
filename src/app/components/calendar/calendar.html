@@ -33,7 +33,8 @@
       <div></div>
     }
     @for (i of [].constructor(daysInCurrentMonth()); let j = $index; track j) {
-      <button 
+      <button
+        (click)="onSelectDay(j+1)"
         class="aspect-square rounded-lg p-2 text-center transition-smooth text-foreground"
         [ngClass]="{
           'hover:bg-muted hover:scale-105': currentDayNumber() !== j + 1,

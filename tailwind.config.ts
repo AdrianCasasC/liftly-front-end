@@ -61,6 +61,9 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      fontSize: {
+        md: '16px'
+      },
       backgroundImage: {
         primary: 'var(--primary-bg)' 
       },

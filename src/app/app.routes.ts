@@ -4,21 +4,21 @@ export const routes: Routes = [
     {
         path: 'home',
         loadComponent: () =>
-            import('./pages/home-page/home-page').then(
+            import('@pages/home-page/home-page').then(
             (m) => m.HomePage
             ),
     },
     {
         path: 'training',
-        loadComponent: () =>
-            import('./pages/training-page/training-page').then(
-            (m) => m.TrainingPage
+        loadChildren: () =>
+            import('@pages/training/training.routes').then(
+              (m) => m.trainingRoutes
             ),
     },
     {
         path: 'weight',
         loadComponent: () =>
-            import('./pages/weight-page/weight-page').then(
+            import('@pages/weight-page/weight-page').then(
             (m) => m.WeightPage
             ),
     },

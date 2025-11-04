@@ -1,5 +1,5 @@
 <header class="w-full h-16 px-[16px] flex items-center justify-between bg-primary container">
-	<a href="/" class="flex items-center gap-2">
+	<a routerLink="/" class="flex items-center gap-2">
 		<div class="w-10 h-10 rounded-lg flex items-center justify-center bg-secondary_bg">
 			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
 				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -19,8 +19,10 @@
 	</a>
 	<div class="flex gap-1">
 		<a
-			class="flex items-center gap-2 px-4 py-2 rounded-lg transition-smooth text-primary-foreground shadow-primary bg-secondary_bg"
-			href="/">
+			class="flex items-center gap-2 px-4 py-2 rounded-lg transition-smooth text-primary-foreground shadow-primary"
+			routerLink="/home"
+			routerLinkActive="bg-secondary_bg"
+			>
 			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
 				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
 				class="lucide lucide-house h-5 w-5 text-white">
@@ -31,8 +33,10 @@
 			</svg>
 			<span class="font-medium hidden sm:inline">Home</span></a>
 			<a
-			class="flex items-center gap-2 px-4 py-2 rounded-lg transition-smooth text-muted-foreground hover:bg-muted hover:text-foreground bg-secondary_bg"
-			href="/training">
+			class="flex items-center gap-2 px-4 py-2 rounded-lg transition-smooth text-muted-foreground hover:bg-muted hover:text-foreground"
+			routerLink="/training"
+			routerLinkActive="bg-secondary_bg"
+			>
 			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
 				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
 				class="lucide lucide-dumbbell h-5 w-5 text-white">
@@ -48,8 +52,10 @@
 			</svg>
 			<span class="font-medium hidden sm:inline">Training</span></a>
 			<a
-			class="flex items-center gap-2 px-4 py-2 rounded-lg transition-smooth text-muted-foreground hover:bg-muted hover:text-foreground bg-secondary_bg"
-			href="/weight">
+			class="flex items-center gap-2 px-4 py-2 rounded-lg transition-smooth text-muted-foreground hover:bg-muted hover:text-foregroun"
+			routerLink="/weight"
+			routerLinkActive="bg-secondary_bg"
+			>
 			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
 				stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
 				class="lucide lucide-weight h-5 w-5 text-white">

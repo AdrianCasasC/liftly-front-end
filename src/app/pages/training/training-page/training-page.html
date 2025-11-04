@@ -1,0 +1,75 @@
+@if (!isAddingNewWorkout()) {
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+	<div class="mb-8">
+		<h1 class="text-4xl text-contrast font-bold mb-2">Entrenamiento</h1>
+		<p class="text-muted-foreground">Crea y administra tus rutinas de entrenamiento</p>
+	</div>
+	<div
+		class="rounded-lg border bg-card text-card-foreground shadow-sm p-6 mb-8 shadow-card transition-smooth hover:shadow-primary">
+		<button (click)="onCreateNewWorkout()"
+			class="text-md inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 w-full gradient-primary py-6"><svg
+				xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+				stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus mr-2 h-5 w-5">
+				<path d="M5 12h14"></path>
+				<path d="M12 5v14"></path>
+			</svg>Crear Nuevo Entrenamiento</button>
+	</div>
+	<div class="space-y-4">
+		<div class="rounded-lg border bg-card text-card-foreground shadow-sm p-8 text-center">
+			<p class="text-muted-foreground text-lg">Todavía no hay entrenamientos.<br>¡Crea tu primer entrenamiento para
+				empezar!</p>
+		</div>
+	</div>
+</div>
+} @else {
+@for (item of newWorkoutExercises; track $index) {
+<div class="rounded-lg border text-card-foreground shadow-sm p-4 bg-muted/50 mb-4">
+	<div class="grid gap-4 md:grid-cols-5">
+		<div class="md:col-span-2"><label
+				class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Exercise</label><button
+				type="button" role="combobox" aria-controls="radix-:r0:" aria-expanded="false" aria-autocomplete="none"
+				dir="ltr" data-state="closed"
+				class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&amp;&gt;span]:line-clamp-1"><span
+					style="pointer-events: none;">Bench Press</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+					viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+					stroke-linejoin="round" class="lucide lucide-chevron-down h-4 w-4 opacity-50" aria-hidden="true">
+					<path d="m6 9 6 6 6-6"></path>
+				</svg></button></div>
+		<div><label
+				class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Sets</label><input
+				type="number"
+				class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+				min="1" value="3"></div>
+		<div><label
+				class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label><input
+				type="number"
+				class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+				min="1" value="10"></div>
+		<div class="flex items-end"><button
+				class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 w-full"><svg
+					xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+					stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+					class="lucide lucide-trash2 h-4 w-4">
+					<path d="M3 6h18"></path>
+					<path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+					<path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+					<line x1="10" x2="10" y1="11" y2="17"></line>
+					<line x1="14" x2="14" y1="11" y2="17"></line>
+				</svg></button></div>
+	</div>
+	<div class="mt-4"><label
+			class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Weight (kg) -
+			Optional</label><input type="number"
+			class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+			step="0.5" placeholder="Enter weight" value=""></div>
+</div>
+}
+<liftly-add-button
+	[title]="'Añadir Entrenamiento'"
+	[addButtonText]="'Añadir Ejercicio'"
+	[saveButtonText]="'Guardar'"
+	[cancelButtonText]="'Cancelar'"
+	(save)="onConfirmCreateNewWorkout()"
+	(add)="onAddExercise()"
+	(cancel)="onCancelNewWorkout()" />
+}
