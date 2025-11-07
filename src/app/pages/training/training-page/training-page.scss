@@ -1,0 +1,10 @@
+.dropdown {
+	width: 100%;
+	background-color: red;
+}
+
+::ng-deep {
+	.ant-menu-title-content {
+		color: white;
+	}
+}

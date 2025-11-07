@@ -14,4 +14,4 @@ export interface Workout {
 	exercises: Exercise[]
 }
 
-export type ExerciseName = 'bench-press' | 'squad' | 'dead-lift'
+export type ExerciseName = 'bench_press' | 'squad' | 'dead_lift'
