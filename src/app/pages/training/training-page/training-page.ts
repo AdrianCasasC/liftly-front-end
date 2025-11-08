@@ -1,11 +1,12 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AddButton } from '@app/components/add-button/add-button';
 import { getExercisesByMuscleGroup, GYM_EXERCISES, MUSCLE_GROUPS } from '@app/constants/training';
-import { Exercise, ExerciseName, MuscleGroup, Workout } from '@app/models/training';
+import { Exercise, ExerciseName, GymExercise, MuscleGroup, Workout } from '@app/models/training';
 import { ToLabelPipe } from '@app/pipes/to-label-pipe';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import { minLengthArray } from '@app/validators/validators';
 
 @Component({
   selector: 'app-training-page',
@@ -22,17 +23,22 @@ export class TrainingPage {
   /* Variables */
   newWorkout: Workout | null = null;
   muscleGroups = MUSCLE_GROUPS;
-  gymExercises = GYM_EXERCISES;
   workoutForm: FormGroup = this._fb.group({
-    exercises: this._fb.array([])
+    name: ['', Validators.required],
+    exercises: this._fb.array([], [minLengthArray(1)])
   });
 
   get exercises() {
     return this.workoutForm.controls['exercises'] as FormArray;
   }
 
+
   getFormArrayFromGroup(group: AbstractControl<any, any>, controlName: string): FormArray {
     return group.get(controlName) as FormArray
+  }
+
+  getExerciseOptionsByMuscle(muscle: MuscleGroup): GymExercise[] {
+    return getExercisesByMuscleGroup(muscle);
   }
 
   onCreateNewWorkout(): void {
@@ -40,6 +46,9 @@ export class TrainingPage {
   }
 
   onConfirmCreateNewWorkout(): void {
+    // TODO: Llamada a servicio y en el suscribe meter esto
+    if (this.workoutForm.invalid) return;
+    console.log('WorkoutForm: ', this.workoutForm.value);
     this.isAddingNewWorkout.set(false);
   }
 
@@ -58,8 +67,9 @@ export class TrainingPage {
       })])
     });
     exerciseForm.get('muscle')?.valueChanges.subscribe((value: string | null) => {
-      if (!value) return;
-      this.gymExercises = getExercisesByMuscleGroup(value as MuscleGroup)
+      exerciseForm.patchValue({
+        name: this.getExerciseOptionsByMuscle(value as MuscleGroup)[0].value
+      })
     });
     const setsArray = exerciseForm.get('sets') as FormArray;
     exerciseForm.get('numberSets')?.valueChanges.subscribe((value: number | null) => {
@@ -94,10 +104,6 @@ export class TrainingPage {
 
   getFormGroup(form: AbstractControl<any, any>): FormGroup {
     return form as FormGroup;
-  }
-
-  onSubmit(): void {
-
   }
 
 }
