@@ -10,7 +10,7 @@ export class ToLabelPipe implements PipeTransform {
     if (!value || !options || options.length === 0) return '';
 
     const match = options.find(opt => opt.value === value);
-    return match ? match.label : value; // fallback to showing value if not found
+    return match ? match.label : ''; // fallback to showing value if not found
   }
 
 }

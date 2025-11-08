@@ -1,3 +1,5 @@
+import { DropdownItem } from "./common";
+
 interface Set {
 	order: number;
 	reps: number;
@@ -15,3 +17,9 @@ export interface Workout {
 }
 
 export type ExerciseName = 'bench_press' | 'squad' | 'dead_lift'
+
+export type MuscleGroup = 'chest' | 'back' | 'leg' | 'arm' | 'shoulder'
+
+export interface GymExercise extends DropdownItem<ExerciseName> {
+	muscle: MuscleGroup;
+}

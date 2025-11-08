@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AddButton } from '@app/components/add-button/add-button';
-import { GYM_EXERCISES } from '@app/constants/training';
-import { Exercise, Workout } from '@app/models/training';
+import { getExercisesByMuscleGroup, GYM_EXERCISES, MUSCLE_GROUPS } from '@app/constants/training';
+import { Exercise, ExerciseName, MuscleGroup, Workout } from '@app/models/training';
 import { ToLabelPipe } from '@app/pipes/to-label-pipe';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -21,7 +21,8 @@ export class TrainingPage {
 
   /* Variables */
   newWorkout: Workout | null = null;
-  allGymExercises = GYM_EXERCISES;
+  muscleGroups = MUSCLE_GROUPS;
+  gymExercises = GYM_EXERCISES;
   workoutForm: FormGroup = this._fb.group({
     exercises: this._fb.array([])
   });
@@ -48,21 +49,26 @@ export class TrainingPage {
 
   onAddExercise(): void {
     const exerciseForm = this._fb.group({
+      muscle: ['chest', Validators.required],
       name: ['bench_press', Validators.required],
       numberSets: [1, Validators.required],
-      sets: this._fb.array([{
-        reps: [0],
-        weight: [0]
-      }])
-    })
+      sets: this._fb.array([this._fb.group({
+        reps: [null],
+        weight: [null] 
+      })])
+    });
+    exerciseForm.get('muscle')?.valueChanges.subscribe((value: string | null) => {
+      if (!value) return;
+      this.gymExercises = getExercisesByMuscleGroup(value as MuscleGroup)
+    });
     const setsArray = exerciseForm.get('sets') as FormArray;
     exerciseForm.get('numberSets')?.valueChanges.subscribe((value: number | null) => {
       setsArray.clear();
       if (value === null) return;
       for (let i = 0; i < value; i++) {
         const set = this._fb.group({
-          reps: [0],
-          weight: [0] 
+          reps: [null],
+          weight: [null] 
         })
         setsArray.push(set);
       }
@@ -70,6 +76,17 @@ export class TrainingPage {
     this.exercises.push(exerciseForm);
   }
 
+  onSelectMuscleGroup(value: MuscleGroup, exerciseIndex: number): void {
+    this.exercises.at(exerciseIndex).patchValue({
+      muscle: value
+    });
+  }
+
+  onSelectExercise(value: ExerciseName, exerciseIndex: number): void {
+    this.exercises.at(exerciseIndex).patchValue({
+      name: value
+    });
+  }
 
   onRemoveExercise(exercIndex: number): void {
     this.exercises.removeAt(exercIndex);
