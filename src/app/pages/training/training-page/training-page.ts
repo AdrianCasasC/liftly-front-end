@@ -13,7 +13,7 @@ import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Reactiv
   templateUrl: './training-page.html',
   styleUrl: './training-page.scss',
 })
-export class TrainingPage implements OnInit {
+export class TrainingPage {
   /** Injections */
   private readonly _fb = inject(FormBuilder);
   /* Signals */
@@ -25,14 +25,9 @@ export class TrainingPage implements OnInit {
   workoutForm: FormGroup = this._fb.group({
     exercises: this._fb.array([])
   });
-  exrcFormArray: FormArray = this._fb.array([]);
 
-  private initControls(): void {
-    this.exrcFormArray = this.workoutForm.get('exercises') as FormArray;
-  }
-
-  ngOnInit(): void {
-    this.initControls();
+  get exercises() {
+    return this.workoutForm.controls['exercises'] as FormArray;
   }
 
   getFormArrayFromGroup(group: AbstractControl<any, any>, controlName: string): FormArray {
@@ -52,7 +47,7 @@ export class TrainingPage implements OnInit {
   }
 
   onAddExercise(): void {
-    const newExerciseForm = this._fb.group({
+    const exerciseForm = this._fb.group({
       name: ['bench_press', Validators.required],
       numberSets: [1, Validators.required],
       sets: this._fb.array([{
@@ -60,8 +55,9 @@ export class TrainingPage implements OnInit {
         weight: [0]
       }])
     })
-    const setsArray = newExerciseForm.get('sets') as FormArray;
-    newExerciseForm.get('numberSets')?.valueChanges.subscribe((value: number | null) => {
+    const setsArray = exerciseForm.get('sets') as FormArray;
+    exerciseForm.get('numberSets')?.valueChanges.subscribe((value: number | null) => {
+      setsArray.clear();
       if (value === null) return;
       for (let i = 0; i < value; i++) {
         const set = this._fb.group({
@@ -71,7 +67,20 @@ export class TrainingPage implements OnInit {
         setsArray.push(set);
       }
     })
-    this.exrcFormArray.push(newExerciseForm);
+    this.exercises.push(exerciseForm);
+  }
+
+
+  onRemoveExercise(exercIndex: number): void {
+    this.exercises.removeAt(exercIndex);
+  }
+
+  getFormGroup(form: AbstractControl<any, any>): FormGroup {
+    return form as FormGroup;
+  }
+
+  onSubmit(): void {
+
   }
 
 }

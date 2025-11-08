@@ -23,20 +23,18 @@
 	</div>
 </div>
 } @else {
-	<form [formGroup]="workoutForm">
+	<form [formGroup]="workoutForm" (ngSubmit)="onSubmit()">
 		<div formArrayName="exercises"></div>
-		@for (exerc of exrcFormArray.controls; let i = $index; track i) {
-				<div [formGroupName]="'exerc' + i" class="rounded-lg border text-card-foreground shadow-sm p-4 bg-muted/50 mb-4">
+		@for (exerciseForm of exercises.controls; track $index) {
+				<div [formGroup]="getFormGroup(exerciseForm)"  class="rounded-lg border text-card-foreground shadow-sm p-4 bg-muted/50 mb-4">
 					<div class="grid gap-4 md:grid-cols-5">
 						<div class="md:col-span-2">
-							
-
 							<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
 								Exercise
 							</label>
 							<button nz-dropdown [nzDropdownMenu]="menu" [nzOverlayClassName]="'dropdown'" [nzOverlayStyle]="{ 'top': '4px', 'width': '100%', 'color': 'white' }" nzTrigger="click"
 								class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&amp;&gt;span]:line-clamp-1">
-								<span style="pointer-events: none;">{{ exerc.value.name| toLabel: allGymExercises}}</span>
+								<span style="pointer-events: none;">{{ exerciseForm.value.name| toLabel: allGymExercises}}</span>
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
 									viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
 									stroke-linejoin="round" class="lucide lucide-chevron-down h-4 w-4 opacity-50" aria-hidden="true">
@@ -47,7 +45,7 @@
 								<ul nz-menu class="bg-background">
 									@for (exrc of allGymExercises; track $index) {
 										<li nz-menu-item class="rounded-sm p-1.5 pl-9 mb-1 hover:bg-primary relative">
-											@if(exrc.value === exerc.value.name) {
+											@if(exrc.value === exerciseForm.value.name) {
 												<nz-icon nzType="check" nzTheme="outline" class="absolute left-3 top-1/2 -translate-y-1/2" />
 											}
 											{{ exrc.label }}</li>
@@ -55,34 +53,36 @@
 								</ul>
 							</nz-dropdown-menu>
 						</div>
-						<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Sets</label>
-							<input
+
+						<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Número de Series</label>
+						<input
 								formControlName="numberSets"
 								type="number"
 								class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-								>
-							<div formArrayName="sets">
-						@for (set of getFormArrayFromGroup(exerc, 'sets').controls; let j = $index; track j) {
-							<div [formGroupName]="j">
-								<div>
-									<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label>
+						>
+
+						<div formArrayName="sets">
+							@for (setForm of getFormArrayFromGroup(exerciseForm, 'sets').controls; let i = $index; track i) {
+								<span class="text-primary text-md w-full block border-b-2 border-primary mb-1">Serie Nº {{ i + 1 }}</span>
+								<div [formGroup]="getFormGroup(setForm)" class="mb-3">
+									<label class="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label>
 									<input
 										formControlName="reps"
-										type="number"
+										type="text"
 										class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-										>
-								</div>
-								<div>
-									<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Weight</label>
+									>
+
+									<label class="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Weight</label>
 									<input
 										formControlName="weight"
-										type="number"
+										type="text"
 										class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-										>
+									>
 								</div>
-							</div>
 							}
 						</div>
+							
+						
 						<div class="flex items-end"><button
 								class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 w-full"><svg
 									xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -95,16 +95,11 @@
 									<line x1="14" x2="14" y1="11" y2="17"></line>
 								</svg></button></div>
 					</div>
-					<div class="mt-4"><label
-							class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Weight (kg) -
-							Optional</label><input type="number"
-							class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-							step="0.5" placeholder="Enter weight" value=""></div>
 				</div>
 		}
 </form>
 <liftly-add-button [title]="'Añadir Entrenamiento'" [addButtonText]="'Añadir Ejercicio'" [saveButtonText]="'Guardar'"
-	[cancelButtonText]="'Cancelar'" (save)="onConfirmCreateNewWorkout()" (add)="onAddExercise()"
+	[cancelButtonText]="'Cancelar'" [buttonType]="'submit'" [disabled]="workoutForm.invalid" (save)="onConfirmCreateNewWorkout()" (add)="onAddExercise()"
 	(cancel)="onCancelNewWorkout()" />
 }
 

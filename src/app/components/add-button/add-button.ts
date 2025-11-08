@@ -13,6 +13,8 @@ export class AddButton {
   cancelButtonText = input<string>('Cancelar');
   addButtonText = input<string>('Añadir');
   title = input<string>('Añadir');
+  buttonType = input<'button' | 'reset' | 'submit'>('button');
+  disabled = input<boolean>(false);
 
   /* Outputs */
   save = output<void>();
