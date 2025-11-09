@@ -1,4 +1,3 @@
-
 @if (!isAddingNewWorkout()) {
 <div class="container mx-auto px-4 py-8 max-w-6xl">
 	<div class="mb-8">
@@ -15,127 +14,169 @@
 				<path d="M12 5v14"></path>
 			</svg>Crear Nuevo Entrenamiento</button>
 	</div>
+	@if (allWorkouts().length === 0) {}
 	<div class="space-y-4">
 		<div class="rounded-lg border bg-card text-card-foreground shadow-sm p-8 text-center">
+			@if (allWorkouts.length === 0) {
 			<p class="text-muted-foreground text-lg">Todavía no hay entrenamientos.<br>¡Crea tu primer entrenamiento para
 				empezar!</p>
+			} @else {
+			@for (workout of allWorkouts(); track $index) {
+			<nz-collapse>
+				<nz-collapse-panel [nzHeader]="collapseHeader">
+					<div class="space-y-3">
+						@for (exerc of workout.exercises; track $index) {
+							<div class="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+								<div>
+									<p class="font-semibold">{{ exerc.name | toLabel: gymExercises}}</p>
+									@for (set of exerc.sets; let setInd = $index; track setInd) {
+										<p class="text-sm text-muted-foreground">Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</p>
+									}
+								</div>
+							</div>
+						}
+					</div>
+				</nz-collapse-panel>
+			</nz-collapse>
+
+			<ng-template #collapseHeader>
+				<h3 class="text-xl font-bold flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+						height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						stroke-linejoin="round" class="lucide lucide-dumbbell h-5 w-5 text-primary">
+						<path d="M14.4 14.4 9.6 9.6"></path>
+						<path
+							d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z">
+						</path>
+						<path d="m21.5 21.5-1.4-1.4"></path>
+						<path d="M3.9 3.9 2.5 2.5"></path>
+						<path
+							d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z">
+						</path>
+					</svg>
+					{{ workout.name }}
+				</h3>
+				<p class="text-muted-foreground">{{ workout.exercises.length }} {{ workout.exercises.length > 1 ? 'ejercicios' :
+					'ejercicio' }}</p>
+			</ng-template>
+			}
+			}
 		</div>
 	</div>
 </div>
 } @else {
-	<h2 class="text-2xl font-bold mb-6 text-contrast">Crea tu entrenamiento</h2>
-	<form [formGroup]="workoutForm">
-		<div class="rounded-lg border text-card-foreground shadow-sm p-4 bg-muted/50 mb-4">
-			<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Nombre del Entrenamiento</label>
-			<input
-					formControlName="name"
-					type="text"
-					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-			>
-		</div>
-		<div formArrayName="exercises">
+<h2 class="text-2xl font-bold mb-6 text-contrast">Crea tu entrenamiento</h2>
+<form [formGroup]="workoutForm">
+	<div class="rounded-lg border text-card-foreground shadow-sm p-4 bg-muted/50 mb-4">
+		<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Nombre del
+			Entrenamiento</label>
+		<input formControlName="name" type="text"
+			class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+	</div>
+	<div formArrayName="exercises">
 		@for (exerciseForm of exercises.controls; let i = $index; track i) {
-				<div [formGroup]="getFormGroup(exerciseForm)"  class="rounded-lg border text-card-foreground shadow-sm p-4 bg-muted/50 mb-4">
-					<div class="grid gap-4 md:grid-cols-5">
-						<div class="md:col-span-2">
-							<label class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-								Elije el grupo muscular
-							</label>
-							<button nz-dropdown [nzDropdownMenu]="menuMuscle" [nzOverlayClassName]="'dropdown'" [nzOverlayStyle]="{ 'top': '4px', 'width': '100%', 'color': 'white' }" nzTrigger="click"
-								class="mb-3 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&amp;&gt;span]:line-clamp-1">
-								<span style="pointer-events: none;">{{ exerciseForm.value.muscle| toLabel: muscleGroups}}</span>
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-									viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									stroke-linejoin="round" class="lucide lucide-chevron-down h-4 w-4 opacity-50" aria-hidden="true">
-									<path d="m6 9 6 6 6-6"></path>
-								</svg>
-							</button>
-							<nz-dropdown-menu #menuMuscle>
-								<ul nz-menu class="bg-background">
-									@for (muscle of muscleGroups; track $index) {
-										<li (click)="onSelectMuscleGroup(muscle.value, i)" nz-menu-item class="rounded-sm p-1.5 pl-9 mb-1 hover:bg-primary relative">
-											@if(muscle.value === exerciseForm.value.muscle) {
-												<nz-icon nzType="check" nzTheme="outline" class="absolute left-3 top-1/2 -translate-y-1/2" />
-											}
-											{{ muscle.label }}</li>
-									}
-								</ul>
-							</nz-dropdown-menu>
-
-							<label class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-								Ejercicio
-							</label>
-							<button nz-dropdown [nzDropdownMenu]="menu" [nzOverlayClassName]="'dropdown'" [nzOverlayStyle]="{ 'top': '4px', 'width': '100%', 'color': 'white' }" nzTrigger="click"
-								class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&amp;&gt;span]:line-clamp-1">
-								<span style="pointer-events: none;">{{ exerciseForm.value.name| toLabel: getExerciseOptionsByMuscle(exerciseForm.value.muscle)}}</span>
-								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-									viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-									stroke-linejoin="round" class="lucide lucide-chevron-down h-4 w-4 opacity-50" aria-hidden="true">
-									<path d="m6 9 6 6 6-6"></path>
-								</svg>
-							</button>
-							<nz-dropdown-menu #menu>
-								<ul nz-menu class="bg-background">
-									@for (exrc of getExerciseOptionsByMuscle(exerciseForm.value.muscle); track $index) {
-										<li (click)="onSelectExercise(exrc.value, i)" nz-menu-item class="rounded-sm p-1.5 pl-9 mb-1 hover:bg-primary relative">
-											@if(exrc.value === exerciseForm.value.name) {
-												<nz-icon nzType="check" nzTheme="outline" class="absolute left-3 top-1/2 -translate-y-1/2" />
-											}
-											{{ exrc.label }}</li>
-									}
-								</ul>
-							</nz-dropdown-menu>
-						</div>
-
-						<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Número de Series</label>
-						<input
-								formControlName="numberSets"
-								type="number"
-								class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-						>
-
-						<div formArrayName="sets">
-							@for (setForm of getFormArrayFromGroup(exerciseForm, 'sets').controls; let j = $index; track j) {
-								<span class="mb-2 text-primary text-md w-full block border-b-2 border-primary">Serie Nº {{ j + 1 }}</span>
-								<div [formGroup]="getFormGroup(setForm)" class="mb-3">
-									<label class="mb-2 block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label>
-									<input
-										formControlName="reps"
-										type="text"
-										class="mb-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-									>
-
-									<label class="mb-2 block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Peso (kg)</label>
-									<input
-										formControlName="weight"
-										type="text"
-										class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-									>
-								</div>
+		<div [formGroup]="getFormGroup(exerciseForm)"
+			class="rounded-lg border text-card-foreground shadow-sm p-4 bg-muted/50 mb-4">
+			<div class="grid gap-4 md:grid-cols-5">
+				<div class="md:col-span-2">
+					<label
+						class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+						Elije el grupo muscular
+					</label>
+					<button nz-dropdown [nzDropdownMenu]="menuMuscle" [nzOverlayClassName]="'dropdown'"
+						[nzOverlayStyle]="{ 'top': '4px', 'width': '100%', 'color': 'white' }" nzTrigger="click"
+						class="mb-3 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&amp;&gt;span]:line-clamp-1">
+						<span style="pointer-events: none;">{{ exerciseForm.value.muscle| toLabel: muscleGroups}}</span>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+							stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+							class="lucide lucide-chevron-down h-4 w-4 opacity-50" aria-hidden="true">
+							<path d="m6 9 6 6 6-6"></path>
+						</svg>
+					</button>
+					<nz-dropdown-menu #menuMuscle>
+						<ul nz-menu class="bg-background">
+							@for (muscle of muscleGroups; track $index) {
+							<li (click)="onSelectMuscleGroup(muscle.value, i)" nz-menu-item
+								class="rounded-sm p-1.5 pl-9 mb-1 hover:bg-primary relative">
+								@if(muscle.value === exerciseForm.value.muscle) {
+								<nz-icon nzType="check" nzTheme="outline" class="absolute left-3 top-1/2 -translate-y-1/2" />
+								}
+								{{ muscle.label }}
+							</li>
 							}
-						</div>
-							
-						
-						<div class="flex items-end"><button
-							(click)="onRemoveExercise(i)"
-								class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 w-full"><svg
-									xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-									stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-									class="lucide lucide-trash2 h-4 w-4">
-									<path d="M3 6h18"></path>
-									<path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-									<path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-									<line x1="10" x2="10" y1="11" y2="17"></line>
-									<line x1="14" x2="14" y1="11" y2="17"></line>
-								</svg></button></div>
-					</div>
+						</ul>
+					</nz-dropdown-menu>
+
+					<label
+						class="mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+						Ejercicio
+					</label>
+					<button nz-dropdown [nzDropdownMenu]="menu" [nzOverlayClassName]="'dropdown'"
+						[nzOverlayStyle]="{ 'top': '4px', 'width': '100%', 'color': 'white' }" nzTrigger="click"
+						class="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&amp;&gt;span]:line-clamp-1">
+						<span style="pointer-events: none;">{{ exerciseForm.value.name| toLabel:
+							getExerciseOptionsByMuscle(exerciseForm.value.muscle)}}</span>
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+							stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+							class="lucide lucide-chevron-down h-4 w-4 opacity-50" aria-hidden="true">
+							<path d="m6 9 6 6 6-6"></path>
+						</svg>
+					</button>
+					<nz-dropdown-menu #menu>
+						<ul nz-menu class="bg-background">
+							@for (exrc of getExerciseOptionsByMuscle(exerciseForm.value.muscle); track $index) {
+							<li (click)="onSelectExercise(exrc.value, i)" nz-menu-item
+								class="rounded-sm p-1.5 pl-9 mb-1 hover:bg-primary relative">
+								@if(exrc.value === exerciseForm.value.name) {
+								<nz-icon nzType="check" nzTheme="outline" class="absolute left-3 top-1/2 -translate-y-1/2" />
+								}
+								{{ exrc.label }}
+							</li>
+							}
+						</ul>
+					</nz-dropdown-menu>
 				</div>
-		}
+
+				<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Número
+					de Series</label>
+				<input formControlName="numberSets" type="number"
+					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+
+				<div formArrayName="sets">
+					@for (setForm of getFormArrayFromGroup(exerciseForm, 'sets').controls; let j = $index; track j) {
+					<span class="mb-2 text-primary text-md w-full block border-b-2 border-primary">Serie Nº {{ j + 1 }}</span>
+					<div [formGroup]="getFormGroup(setForm)" class="mb-3">
+						<label
+							class="mb-2 block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label>
+						<input formControlName="reps" type="text"
+							class="mb-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+
+						<label
+							class="mb-2 block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Peso
+							(kg)</label>
+						<input formControlName="weight" type="text"
+							class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+					</div>
+					}
+				</div>
+
+
+				<div class="flex items-end"><button (click)="onRemoveExercise(i)"
+						class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 w-full"><svg
+							xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+							stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+							class="lucide lucide-trash2 h-4 w-4">
+							<path d="M3 6h18"></path>
+							<path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+							<path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+							<line x1="10" x2="10" y1="11" y2="17"></line>
+							<line x1="14" x2="14" y1="11" y2="17"></line>
+						</svg></button></div>
+			</div>
 		</div>
-		<liftly-add-button [addButtonText]="'Añadir Ejercicio'" [saveButtonText]="'Guardar'"
-			[cancelButtonText]="'Cancelar'" [buttonType]="'submit'" [disabled]="workoutForm.invalid" (save)="onConfirmCreateNewWorkout()" (add)="onAddExercise()"
-			(cancel)="onCancelNewWorkout()" />
+		}
+	</div>
+	<liftly-add-button [addButtonText]="'Añadir Ejercicio'" [saveButtonText]="'Guardar'" [cancelButtonText]="'Cancelar'"
+		[buttonType]="'submit'" [disabled]="workoutForm.invalid" (save)="onConfirmCreateNewWorkout()"
+		(add)="onAddExercise()" (cancel)="onCancelNewWorkout()" />
 </form>
 }
-
-

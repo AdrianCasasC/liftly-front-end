@@ -11,8 +11,8 @@ export class RequestService {
     @Inject('API_URL') private apiUrl: string
   ) {}
 
-  protected getAll<T>(params?: Record<string, any>): Observable<T[]> {
-    return this.http.get<T[]>(`${this.apiUrl}`, {
+  protected getAll<T>(url?: string, params?: Record<string, any>): Observable<T[]> {
+    return this.http.get<T[]>(`${this.apiUrl}${url ? url : ''}`, {
       withCredentials: true,
       params,
     });
@@ -39,8 +39,8 @@ export class RequestService {
 
   protected update<T>(
     url: string = '',
-    id: number | string,
-    data: Partial<T>
+    data: Partial<T>,
+    id: number | string
   ): Observable<T> {
     return this.http.put<T>(`${this.apiUrl}${url ? url : ''}/${id}`, data, {
       withCredentials: true,

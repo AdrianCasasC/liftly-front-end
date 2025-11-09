@@ -7,22 +7,29 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import { minLengthArray } from '@app/validators/validators';
+import { TrainingService } from '@app/services/training';
+import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 
 @Component({
   selector: 'app-training-page',
-  imports: [AddButton, NzDropDownModule, NzIconModule, ToLabelPipe, ReactiveFormsModule],
+  imports: [AddButton, NzDropDownModule, NzIconModule, ToLabelPipe, ReactiveFormsModule, NzCollapseModule],
   templateUrl: './training-page.html',
   styleUrl: './training-page.scss',
 })
 export class TrainingPage {
   /** Injections */
   private readonly _fb = inject(FormBuilder);
+  private readonly _trainingService = inject(TrainingService);
+
   /* Signals */
   isAddingNewWorkout = signal<boolean>(false);
+  allWorkouts = this._trainingService.allWorkouts;
+  selectedWorkout = this._trainingService.workout;
 
   /* Variables */
   newWorkout: Workout | null = null;
   muscleGroups = MUSCLE_GROUPS;
+  gymExercises = GYM_EXERCISES;
   workoutForm: FormGroup = this._fb.group({
     name: ['', Validators.required],
     exercises: this._fb.array([], [minLengthArray(1)])
