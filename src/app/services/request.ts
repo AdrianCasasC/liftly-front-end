@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_URL } from '@app/tokens/tokens';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +9,7 @@ import { Observable } from 'rxjs';
 export class RequestService {
   constructor(
     protected http: HttpClient,
-    @Inject('API_URL') private apiUrl: string
+    @Inject(API_URL) private apiUrl: string
   ) {}
 
   protected getAll<T>(url?: string, params?: Record<string, any>): Observable<T[]> {

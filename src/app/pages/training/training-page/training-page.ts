@@ -55,6 +55,7 @@ export class TrainingPage {
   onConfirmCreateNewWorkout(): void {
     // TODO: Llamada a servicio y en el suscribe meter esto
     if (this.workoutForm.invalid) return;
+    this._trainingService.createWorkout(this.workoutForm.value)
     console.log('WorkoutForm: ', this.workoutForm.value);
     this.isAddingNewWorkout.set(false);
   }

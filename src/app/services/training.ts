@@ -20,7 +20,7 @@ export class TrainingService extends RequestService {
   loadingMap = this._loadingMap.asReadonly()
 
   /* Variables */
-  url = environment.apiUrl
+  url = '/workouts';
 
   getAllWorkouts(params: Record<string, any>): Observable<Workout[]> {
     const mapKey = 'getAll';
