@@ -1,19 +1,23 @@
 import { DropdownItem } from "./common";
 
 interface Set {
-	order: number;
+	id: number;
+	orderNumber: number;
 	reps: number;
 	weight: number;
 }
 
 export interface Exercise {
+	id: number;
 	name: ExerciseName;
 	sets: Set[]
 }
 
 export interface Workout {
+	id: number;
 	name: string;
-	exercises: Exercise[]
+	exercises: Exercise[];
+	createdAt: Date;
 }
 
 export type ExerciseName =

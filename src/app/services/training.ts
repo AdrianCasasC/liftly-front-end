@@ -1,7 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { RequestService } from './request';
 import { Workout } from '@app/models/training';
-import { environment } from 'environments/environment';
 import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification';
 
@@ -22,7 +21,7 @@ export class TrainingService extends RequestService {
   /* Variables */
   url = '/workouts';
 
-  getAllWorkouts(params: Record<string, any>): Observable<Workout[]> {
+  getAllWorkouts(params?: Record<string, any>): Observable<Workout[]> {
     const mapKey = 'getAll';
     this._loadingMap.update(prev => prev.set(mapKey, true));
     return this.getAll<Workout>(this.url, params).pipe(

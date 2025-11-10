@@ -4,7 +4,13 @@
 }
 
 ::ng-deep {
-	.ant-menu-title-content {
+	.ant-menu-title-content,
+	.anticon.ant-collapse-arrow {
 		color: white;
 	}
+
+	.ant-collapse > .ant-collapse-item.ant-collapse-no-arrow > .ant-collapse-header {
+		padding-right: 12px;
+	}
+	
 }

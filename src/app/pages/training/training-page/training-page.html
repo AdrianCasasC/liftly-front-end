@@ -14,35 +14,91 @@
 				<path d="M12 5v14"></path>
 			</svg>Crear Nuevo Entrenamiento</button>
 	</div>
-	@if (allWorkouts().length === 0) {}
 	<div class="space-y-4">
-		<div class="rounded-lg border bg-card text-card-foreground shadow-sm p-8 text-center">
-			@if (allWorkouts.length === 0) {
+		<div class="rounded-lg border bg-card text-card-foreground shadow-sm p-8 text-center transition-smooth">
+			@if (allWorkouts().length === 0) {
 			<p class="text-muted-foreground text-lg">Todavía no hay entrenamientos.<br>¡Crea tu primer entrenamiento para
 				empezar!</p>
 			} @else {
 			@for (workout of allWorkouts(); track $index) {
-			<nz-collapse>
-				<nz-collapse-panel [nzHeader]="collapseHeader">
-					<div class="space-y-3">
+			<nz-collapse class="border-none" [nzGhost]="true" [nzExpandIconPosition]="'end'">
+				<nz-collapse-panel [class.shadow-primary]="activeWorkout === workout.id"
+					(nzActiveChange)="onActiveCollapse(workout.id, $event)" [nzHeader]="collapseHeader" [nzShowArrow]="false"
+					class="bg-background !rounded-lg relative">
+					<div class="space-y-3 bg-background">
 						@for (exerc of workout.exercises; track $index) {
-							<div class="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-								<div>
-									<p class="font-semibold">{{ exerc.name | toLabel: gymExercises}}</p>
+						<div class="relative w-full">
+							<div [id]="exerc.id.toString()" (touchstart)="onTouchStart($event, exerc.id.toString())"
+								(touchmove)="onTouchMove($event)" (touchend)="onTouchEnd()"
+								(mousedown)="onTouchStart($event, exerc.id.toString())" (mousemove)="onTouchMove($event)"
+								(mouseup)="onTouchEnd()"
+								class="flex items-center justify-between p-3 rounded-lg bg-muted/50 text-left relative z-20 w-full">
+								<div class="w-full">
+									@if (editingExerc === exerc.id) {
+									<form [formGroup]="editExercForm" (ngSubmit)="onSubmitEditing()">
+										@for (setForm of getFormArrayFromGroup(editExercForm, 'sets').controls; let editExercInd = $index;
+										track editExercInd) {
+										<span class="mb-2 text-primary text-md w-full block border-b-2 border-primary">Serie Nº {{
+											editExercInd + 1 }}</span>
+										<div [formGroup]="getFormGroup(setForm)" class="mb-3 flex gap-4 items-center">
+											<div class="flex flex-col">
+												<label
+													class="text-contrast mb-2 ml-[6px] block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label>
+												<input formControlName="reps" type="text"
+													class="text-contrast flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+											</div>
+
+											<div class="flex flex-col">
+												<label
+													class="text-contrast mb-2 ml-[6px] block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Peso
+													(kg)</label>
+												<input formControlName="weight" type="text"
+													class="text-contrast flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+											</div>
+										</div>
+										}
+										<button
+											[type]="'submit'"
+											class="flex items-center justify-center whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50  bg-primary text-primary-foreground hover:bg-primary/90 h-6 w-full px-4 flex-1 gradient-primary py-4 text-md"
+											[disabled]="editExercForm.invalid">Guardar</button>
+									</form>
+									} @else {
+									<div class="flex w-full justify-between">
+										<p class="font-semibold text-primary text-md">{{ exerc.name | toLabel: gymExercises}}</p>
+										<nz-icon (click)="onEditExercise(exerc.id)" class="text-primary text-xl" nzType="edit"
+											nzTheme="outline" />
+									</div>
 									@for (set of exerc.sets; let setInd = $index; track setInd) {
-										<p class="text-sm text-muted-foreground">Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</p>
+									<p class="text-xs text-muted-foreground">Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg
+									</p>
+									}
 									}
 								</div>
 							</div>
+							<div [id]="'delete_' + exerc.id.toString()"
+								class="absolute top-0 right-0 w-0 h-full z-10 flex items-center justify-center">
+								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+									stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+									class="lucide lucide-trash2 text-white w-5 h-5">
+									<path d="M3 6h18"></path>
+									<path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+									<path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+									<line x1="10" x2="10" y1="11" y2="17"></line>
+									<line x1="14" x2="14" y1="11" y2="17"></line>
+								</svg>
+							</div>
+						</div>
 						}
 					</div>
+
 				</nz-collapse-panel>
 			</nz-collapse>
 
 			<ng-template #collapseHeader>
-				<h3 class="text-xl font-bold flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-						height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-						stroke-linejoin="round" class="lucide lucide-dumbbell h-5 w-5 text-primary">
+				<h3 class="text-lg text-left text-contrast ml-2 font-bold flex items-center gap-2"><svg
+						xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+						stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+						class="lucide lucide-dumbbell h-5 w-5 text-primary">
 						<path d="M14.4 14.4 9.6 9.6"></path>
 						<path
 							d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z">
@@ -55,7 +111,8 @@
 					</svg>
 					{{ workout.name }}
 				</h3>
-				<p class="text-muted-foreground">{{ workout.exercises.length }} {{ workout.exercises.length > 1 ? 'ejercicios' :
+				<p class="text-muted-foreground text-left">{{ workout.exercises.length }} {{ workout.exercises.length > 1 ?
+					'ejercicios' :
 					'ejercicio' }}</p>
 			</ng-template>
 			}
@@ -67,7 +124,9 @@
 <h2 class="text-2xl font-bold mb-6 text-contrast">Crea tu entrenamiento</h2>
 <form [formGroup]="workoutForm">
 	<div class="rounded-lg border text-card-foreground shadow-sm p-4 bg-muted/50 mb-4">
-		<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Nombre del
+		<label
+			class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2 block">Nombre
+			del
 			Entrenamiento</label>
 		<input formControlName="name" type="text"
 			class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
@@ -144,17 +203,22 @@
 				<div formArrayName="sets">
 					@for (setForm of getFormArrayFromGroup(exerciseForm, 'sets').controls; let j = $index; track j) {
 					<span class="mb-2 text-primary text-md w-full block border-b-2 border-primary">Serie Nº {{ j + 1 }}</span>
-					<div [formGroup]="getFormGroup(setForm)" class="mb-3">
-						<label
-							class="mb-2 block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label>
-						<input formControlName="reps" type="text"
-							class="mb-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+					<div [formGroup]="getFormGroup(setForm)" class="mb-3 flex gap-4 items-center">
+						<div class="flex flex-col">
+							<label
+								class="mb-2 ml-[6px] block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label>
+							<input formControlName="reps" type="text"
+								class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+						</div>
 
-						<label
-							class="mb-2 block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Peso
-							(kg)</label>
-						<input formControlName="weight" type="text"
-							class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+						<div class="flex flex-col">
+							<label
+								class="mb-2 ml-[6px] block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Peso
+								(kg)</label>
+							<input formControlName="weight" type="text"
+								class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+						</div>
+
 					</div>
 					}
 				</div>
