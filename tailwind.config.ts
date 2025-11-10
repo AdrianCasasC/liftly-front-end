@@ -21,7 +21,7 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         gradient: "hsl(var(--gradient-primary))",
-        contrast: "hsl(var(--contrast-color))",
+        contrast: "var(--contrast-color)",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -62,7 +62,8 @@ export default {
         },
       },
       fontSize: {
-        md: '16px'
+        md: '16px',
+        lg: '18px'
       },
       backgroundImage: {
         primary: 'var(--primary-bg)' 

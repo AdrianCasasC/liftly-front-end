@@ -1,6 +1,6 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://names-app-java.onrender.com/api',
+    apiUrl: 'https://liftly-back-end.onrender.com/api',
 };
   
   
