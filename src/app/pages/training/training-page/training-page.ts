@@ -10,6 +10,9 @@ import { minLengthArray } from '@app/validators/validators';
 import { TrainingService } from '@app/services/training';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
 import { ExerciseService } from '@app/services/exercise-service';
+import { LoadingService } from '@app/services/loading-service';
+import { LOADING_KEYS } from '@app/constants/loading';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-training-page',
@@ -22,11 +25,14 @@ export class TrainingPage implements OnInit {
   private readonly _fb = inject(FormBuilder);
   private readonly _trainingService = inject(TrainingService);
   private readonly _exerciseService = inject(ExerciseService);
+  private readonly _loadingService = inject(LoadingService);
+  private readonly _route = inject(ActivatedRoute);
 
   /* Signals */
   isAddingNewWorkout = signal<boolean>(false);
   allWorkouts = this._trainingService.allWorkouts;
   selectedWorkout = this._trainingService.workout;
+  loadingMap = this._loadingService.loadingMap
 
   /* Variables */
   private startX = 0;
@@ -37,11 +43,13 @@ export class TrainingPage implements OnInit {
   private threshold = 60;
   private draggingElement: HTMLDivElement | null = null;
   private deleteElement: HTMLDivElement | null = null;
+  LOADING_KEYS = LOADING_KEYS;
   newWorkout: Workout | null = null;
   muscleGroups = MUSCLE_GROUPS;
   gymExercises = GYM_EXERCISES;
   activeWorkout: number | null = null;
   editingExerc: number | null = null;
+  day: string = '';
   workoutForm: FormGroup = this._fb.group({
     name: ['', Validators.required],
     exercises: this._fb.array([], [minLengthArray(1)])
@@ -65,10 +73,11 @@ export class TrainingPage implements OnInit {
   }
 
   private getAllWorkouts(): void {
-    this._trainingService.getAllWorkouts().subscribe();
+    this._trainingService.getAllWorkouts({ date: this.day.replace('Z', '') }).subscribe();
   }
 
   ngOnInit(): void {
+    this.day = this._route.snapshot.queryParamMap.get('date') ?? '';
     this.getAllWorkouts();
   }
 
@@ -146,8 +155,7 @@ export class TrainingPage implements OnInit {
   }
 
   onEditExercise(exercise: Exercise): void {
-    // TODO: Rellenar el form de edicion con los datos
-    // getexercById
+
     this.editingExerc = exercise.id!;
     const editSets = this._fb.array(
       exercise.sets.map(({reps, weight, orderNumber}) => this._fb.group({
@@ -187,9 +195,12 @@ export class TrainingPage implements OnInit {
       sets
     }
     this._exerciseService.updateExercise(this.editingExerc?.toString() ?? '', editedExercise).subscribe({
-      next: () => this.getAllWorkouts()
+      next: () => {
+        this.getAllWorkouts();
+        this.onCloseEditing();
+      }
     });
-    this.onCloseEditing();
+    
   }
 
   getFormGroup(form: AbstractControl<any, any>): FormGroup {
