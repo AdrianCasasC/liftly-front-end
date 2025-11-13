@@ -38,7 +38,7 @@
         class="aspect-square rounded-lg p-2 text-center transition-smooth text-foreground"
         [ngClass]="{
           'hover:bg-muted hover:scale-105': currentDayNumber() !== j + 1,
-          'gradient-primary': currentDayNumber() === j + 1
+          'gradient-primary': currentDayNumber() === j + 1 && currentMonthNumber() === selectedMonth()
         }">{{j + 1}}</button>
     }
     

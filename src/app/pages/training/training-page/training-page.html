@@ -23,19 +23,79 @@
 			@for (workout of allWorkouts(); track $index) {
 			<nz-collapse class="border-none" [nzGhost]="true" [nzExpandIconPosition]="'end'">
 				<nz-collapse-panel [class.shadow-primary]="activeWorkout === workout.id"
-					(nzActiveChange)="onActiveCollapse(workout.id, $event)" [nzHeader]="collapseHeader" [nzShowArrow]="false"
+					(nzActiveChange)="onActiveCollapse(workout?.id || 0, $event)" [nzHeader]="collapseHeader" [nzShowArrow]="false"
 					class="bg-background !rounded-lg relative">
 					<div class="space-y-3 bg-background">
 						@for (exerc of workout.exercises; track $index) {
 						<div class="relative w-full">
-							<div [id]="exerc.id.toString()" (touchstart)="onTouchStart($event, exerc.id.toString())"
+							<div [id]="exerc.id?.toString()" (touchstart)="onTouchStart($event, exerc.id?.toString() ?? '')"
 								(touchmove)="onTouchMove($event)" (touchend)="onTouchEnd()"
-								(mousedown)="onTouchStart($event, exerc.id.toString())" (mousemove)="onTouchMove($event)"
+								(mousedown)="onTouchStart($event, exerc.id?.toString() ?? '')" (mousemove)="onTouchMove($event)"
 								(mouseup)="onTouchEnd()"
-								class="flex items-center justify-between p-3 rounded-lg bg-muted/50 text-left relative z-20 w-full">
+								class="flex items-center justify-between p-3 rounded-lg bg-muted/50 text-left relative z-20 w-full ">
 								<div class="w-full">
 									@if (editingExerc === exerc.id) {
-									<form [formGroup]="editExercForm" (ngSubmit)="onSubmitEditing()">
+										<!-- Selector de ejercicios -->
+										
+									<form [formGroup]="editExercForm">
+										<div class="md:col-span-2">
+											<label
+												class="text-contrast mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+												Grupo muscular
+											</label>
+											<button nz-dropdown [nzDropdownMenu]="editMenuMuscle" [nzOverlayClassName]="'dropdown'"
+												[nzOverlayStyle]="{ 'top': '4px', 'width': '100%', 'color': 'white' }" nzTrigger="click"
+												class="text-contrast mb-3 flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&amp;&gt;span]:line-clamp-1">
+												<span style="pointer-events: none;">{{ editExercForm.value.muscle| toLabel: muscleGroups}}</span>
+												<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+													stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+													class="lucide lucide-chevron-down h-4 w-4 opacity-50" aria-hidden="true">
+													<path d="m6 9 6 6 6-6"></path>
+												</svg>
+											</button>
+											<nz-dropdown-menu #editMenuMuscle>
+												<ul nz-menu class="bg-background">
+													@for (muscle of muscleGroups; track $index) {
+													<li nz-menu-item
+														class="text-contrast rounded-sm p-1.5 pl-9 mb-1 hover:bg-primary relative">
+														@if(muscle.value === editExercForm.value.muscle) {
+														<nz-icon nzType="check" nzTheme="outline" class="absolute left-3 top-1/2 -translate-y-1/2" />
+														}
+														{{ muscle.label }}
+													</li>
+													}
+												</ul>
+											</nz-dropdown-menu>
+						
+											<label
+												class="text-contrast mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+												Ejercicio
+											</label>
+											<button nz-dropdown [nzDropdownMenu]="editMenu" [nzOverlayClassName]="'dropdown'"
+												[nzOverlayStyle]="{ 'top': '4px', 'width': '100%', 'color': 'white' }" nzTrigger="click"
+												class="text-contrast flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&amp;&gt;span]:line-clamp-1">
+												<span style="pointer-events: none;">{{ editExercForm.value.name| toLabel:
+													getExerciseOptionsByMuscle(editExercForm.value.muscle || '')}}</span>
+												<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+													stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+													class="lucide lucide-chevron-down h-4 w-4 opacity-50" aria-hidden="true">
+													<path d="m6 9 6 6 6-6"></path>
+												</svg>
+											</button>
+											<nz-dropdown-menu #editMenu>
+												<ul nz-menu class="bg-background">
+													@for (exrc of getExerciseOptionsByMuscle(editExercForm.value.muscle || ''); track $index) {
+													<li nz-menu-item
+														class="text-contrast rounded-sm p-1.5 pl-9 mb-1 hover:bg-primary relative">
+														@if(exrc.value === editExercForm.value.name) {
+														<nz-icon nzType="check" nzTheme="outline" class="absolute left-3 top-1/2 -translate-y-1/2" />
+														}
+														{{ exrc.label }}
+													</li>
+													}
+												</ul>
+											</nz-dropdown-menu>
+										</div>
 										@for (setForm of getFormArrayFromGroup(editExercForm, 'sets').controls; let editExercInd = $index;
 										track editExercInd) {
 										<span class="mb-2 text-primary text-md w-full block border-b-2 border-primary">Serie Nº {{
@@ -57,15 +117,21 @@
 											</div>
 										</div>
 										}
-										<button
-											[type]="'submit'"
-											class="flex items-center justify-center whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50  bg-primary text-primary-foreground hover:bg-primary/90 h-6 w-full px-4 flex-1 gradient-primary py-4 text-md"
-											[disabled]="editExercForm.invalid">Guardar</button>
+										<div class="flex gap-4 pt-4">
+											<button
+												(click)="onSubmitEditing()"
+												class="flex items-center justify-center whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50  bg-primary text-primary-foreground hover:bg-primary/90 h-6 w-full px-4 flex-1 gradient-primary py-4 text-md"
+												[disabled]="editExercForm.invalid">Guardar</button>
+												<button
+												(click)="onCloseEditing()"
+												class="inline-flex items-center text-contrast justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-6 px-4 flex-1 py-4 text-md">
+													Cancelar</button>
+										</div>
 									</form>
 									} @else {
 									<div class="flex w-full justify-between">
 										<p class="font-semibold text-primary text-md">{{ exerc.name | toLabel: gymExercises}}</p>
-										<nz-icon (click)="onEditExercise(exerc.id)" class="text-primary text-xl" nzType="edit"
+										<nz-icon (click)="onEditExercise(exerc)" class="text-primary text-xl" nzType="edit"
 											nzTheme="outline" />
 									</div>
 									@for (set of exerc.sets; let setInd = $index; track setInd) {
@@ -75,7 +141,7 @@
 									}
 								</div>
 							</div>
-							<div [id]="'delete_' + exerc.id.toString()"
+							<div [id]="'delete_' + exerc.id?.toString()"
 								class="absolute top-0 right-0 w-0 h-full z-10 flex items-center justify-center">
 								<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
 									stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"

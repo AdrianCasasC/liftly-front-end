@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AddButton } from '@app/components/add-button/add-button';
-import { getExercisesByMuscleGroup, GYM_EXERCISES, MUSCLE_GROUPS } from '@app/constants/training';
-import { Exercise, ExerciseName, GymExercise, MuscleGroup, Workout } from '@app/models/training';
+import { getExercisesByMuscleGroup, getMuscleGroupByExercise, GYM_EXERCISES, MUSCLE_GROUPS } from '@app/constants/training';
+import { Exercise, ExerciseName, ExerciseSet, GymExercise, MuscleGroup, Workout } from '@app/models/training';
 import { ToLabelPipe } from '@app/pipes/to-label-pipe';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -9,6 +9,7 @@ import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Reactiv
 import { minLengthArray } from '@app/validators/validators';
 import { TrainingService } from '@app/services/training';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
+import { ExerciseService } from '@app/services/exercise-service';
 
 @Component({
   selector: 'app-training-page',
@@ -20,6 +21,7 @@ export class TrainingPage implements OnInit {
   /** Injections */
   private readonly _fb = inject(FormBuilder);
   private readonly _trainingService = inject(TrainingService);
+  private readonly _exerciseService = inject(ExerciseService);
 
   /* Signals */
   isAddingNewWorkout = signal<boolean>(false);
@@ -45,9 +47,9 @@ export class TrainingPage implements OnInit {
     exercises: this._fb.array([], [minLengthArray(1)])
   });
   editExercForm = this._fb.group({
+    name: ['', Validators.required],
     muscle: [''],
-    name: [''],
-    numberSets: [null],
+    orderNumber: [0],
     sets: this._fb.array([this._fb.group({
       reps: [null],
       weight: [null] 
@@ -62,8 +64,12 @@ export class TrainingPage implements OnInit {
     return event instanceof TouchEvent ? event.touches[0].clientX : event.clientX;
   }
 
-  ngOnInit(): void {
+  private getAllWorkouts(): void {
     this._trainingService.getAllWorkouts().subscribe();
+  }
+
+  ngOnInit(): void {
+    this.getAllWorkouts();
   }
 
 
@@ -71,8 +77,8 @@ export class TrainingPage implements OnInit {
     return group.get(controlName) as FormArray
   }
 
-  getExerciseOptionsByMuscle(muscle: MuscleGroup): GymExercise[] {
-    return getExercisesByMuscleGroup(muscle);
+  getExerciseOptionsByMuscle(muscle: string): GymExercise[] {
+    return getExercisesByMuscleGroup(muscle as MuscleGroup);
   }
 
   onCreateNewWorkout(): void {
@@ -139,14 +145,51 @@ export class TrainingPage implements OnInit {
     this.exercises.removeAt(exercIndex);
   }
 
-  onEditExercise(exerciseId: number): void {
+  onEditExercise(exercise: Exercise): void {
     // TODO: Rellenar el form de edicion con los datos
     // getexercById
-    this.editingExerc = exerciseId;
+    this.editingExerc = exercise.id!;
+    const editSets = this._fb.array(
+      exercise.sets.map(({reps, weight, orderNumber}) => this._fb.group({
+        reps,
+        weight,
+        orderNumber
+      }))
+    )
+
+    this.editExercForm.patchValue({
+      name: exercise.name,
+      muscle: getMuscleGroupByExercise(exercise)
+      // Don't patch 'sets' directly since it's a FormArray, handle manually below
+    });
+
+    // Clear existing sets and add new ones from editSets FormArray
+    const setsControl = this.editExercForm.get('sets') as FormArray;
+    setsControl.clear();
+    (editSets.controls as FormGroup[]).forEach(setGroup => {
+      setsControl.push(setGroup);
+    });
+  }
+
+  onCloseEditing(): void {
+    this.editingExerc = null;
   }
 
   onSubmitEditing(): void {
-    this.editingExerc = null;
+    const setsFormValue = this.editExercForm.value.sets as any[];
+    const sets: ExerciseSet[] = setsFormValue.map((s, idx) => ({
+      reps: s.reps,
+      weight: s.weight,
+      orderNumber: s.orderNumber ?? idx
+    }));
+    const editedExercise: Partial<Exercise> = {
+      name: this.editExercForm.value.name! as ExerciseName,
+      sets
+    }
+    this._exerciseService.updateExercise(this.editingExerc?.toString() ?? '', editedExercise).subscribe({
+      next: () => this.getAllWorkouts()
+    });
+    this.onCloseEditing();
   }
 
   getFormGroup(form: AbstractControl<any, any>): FormGroup {

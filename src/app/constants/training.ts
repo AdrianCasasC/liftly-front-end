@@ -1,5 +1,5 @@
 import { DropdownItem } from "@app/models/common";
-import { ExerciseName, GymExercise, MuscleGroup } from "@app/models/training";
+import { Exercise, ExerciseName, GymExercise, MuscleGroup } from "@app/models/training";
 
 export const GYM_EXERCISES: GymExercise[] = [
 	{
@@ -125,6 +125,7 @@ export const GYM_EXERCISES: GymExercise[] = [
 ]
 
 export const getExercisesByMuscleGroup = (muscleGroup: MuscleGroup): GymExercise[] => GYM_EXERCISES.filter(exerc => exerc.muscle === muscleGroup);
+export const getMuscleGroupByExercise = (exercise: Exercise): MuscleGroup => GYM_EXERCISES.find(exerc => exerc.value === exercise.name)?.muscle ?? 'arm';
 
 
 export const  MUSCLE_GROUPS: DropdownItem<MuscleGroup>[] = [

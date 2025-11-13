@@ -21,6 +21,7 @@ export class Calendar {
   selectedMonth = signal<number>(this.now.getMonth());
   daysInCurrentMonth = computed(() => new Date(this.selectedYear(), this.selectedMonth() + 1, 0).getDate())
   currentDayNumber = signal<number>(this.now.getDate());
+  currentMonthNumber = signal<number>(this.now.getMonth());
   firstDayOfMonth = computed(() => getEuropeDay(new Date(this.selectedYear(), this.selectedMonth(), 1)))
   lastDayOfMonth = computed(() => getEuropeDay(new Date(this.selectedYear(), this.selectedMonth(), 0)))
   selectedMonthName = computed(() => getMonthNameByNumber(this.selectedMonth()))
