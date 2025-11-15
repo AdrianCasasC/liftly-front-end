@@ -7,5 +7,6 @@ export const LOADING_KEYS: Record<LoadingKeys, LoadingKeys> = {
 	update_workout: 'update_workout',
 	delete_workout: 'delete_workout',
 	update_exercise: 'update_exercise',
+	create_exercise: 'create_exercise',
 	delete_exercise: 'delete_exercise'
 }

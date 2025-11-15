@@ -50,6 +50,9 @@ export class TrainingPage implements OnInit {
   activeWorkout: number | null = null;
   editingExerc: number | null = null;
   day: string = '';
+  isAddingNewExercise: boolean = false;
+  edditingWorkoutId: number | null = null;
+  deleteExercId: number | null = null;
   workoutForm: FormGroup = this._fb.group({
     name: ['', Validators.required],
     exercises: this._fb.array([], [minLengthArray(1)])
@@ -57,8 +60,17 @@ export class TrainingPage implements OnInit {
   editExercForm = this._fb.group({
     name: ['', Validators.required],
     muscle: [''],
-    orderNumber: [0],
     sets: this._fb.array([this._fb.group({
+      orderNumber: [0],
+      reps: [null],
+      weight: [null] 
+    })])
+  });
+  newExercForm = this._fb.group({
+    name: ['', Validators.required],
+    muscle: [''],
+    sets: this._fb.array([this._fb.group({
+      orderNumber: [0],
       reps: [null],
       weight: [null] 
     })])
@@ -134,16 +146,73 @@ export class TrainingPage implements OnInit {
     this.exercises.push(exerciseForm);
   }
 
-  onSelectMuscleGroup(value: MuscleGroup, exerciseIndex: number): void {
-    this.exercises.at(exerciseIndex).patchValue({
-      muscle: value
+  onAddExerciseEdition(workoutId: number): void {
+    this.edditingWorkoutId = workoutId;
+    this.isAddingNewExercise = true;
+  }
+
+  onConfirmAddExercise(): void {
+    const newExercSets: ExerciseSet[] = [];
+    this.newExercForm.value.sets?.forEach(({orderNumber, reps, weight}) => {
+      newExercSets.push({
+        orderNumber: orderNumber ?? 0,
+        reps: reps ?? 0,
+        weight: weight ?? 0
+      })
+    });
+    const newExerc: Exercise = {
+      name: this.newExercForm.value.name as ExerciseName,
+      sets: newExercSets
+    }
+    this._exerciseService.createExercise( this.edditingWorkoutId ?? 0, newExerc).subscribe({
+      next: () => {
+        this.isAddingNewExercise = false;
+        this.newExercForm.reset();
+        const setsArray = this.newExercForm.get('sets') as FormArray;
+        setsArray.clear();
+        setsArray.push(this._fb.group({
+          orderNumber: [0],
+          reps: [null],
+          weight: [null] 
+        }));
+        this.getAllWorkouts();
+      }
     });
   }
 
-  onSelectExercise(value: ExerciseName, exerciseIndex: number): void {
-    this.exercises.at(exerciseIndex).patchValue({
+  onCancelAddExercise(): void {
+    this.isAddingNewExercise = false;
+  }
+
+  onReplicateSerie(exerciseForm: FormGroup): void {
+    const newFormSets = exerciseForm.get('sets') as FormArray;
+    if (newFormSets?.value?.length && newFormSets.value.length > 0 ) {
+      const lastSet = newFormSets.value[newFormSets.value.length - 1]
+      const set = this._fb.group({
+        orderNumber: [lastSet.orderNumber + 1],
+        reps: [lastSet.reps],
+        weight: [lastSet.weight] 
+      });
+      newFormSets.push(set);
+    } else {
+      newFormSets.push(this._fb.group({
+        orderNumber: [0],
+        reps: null,
+        weight: null 
+      }))
+    }
+  }
+
+  onSelectMuscleGroup(value: MuscleGroup, formGroup: FormGroup): void {
+    formGroup.patchValue({
+      muscle: value
+    })
+  }
+
+  onSelectExercise(value: ExerciseName, formGroup: FormGroup): void {
+    formGroup.patchValue({
       name: value
-    });
+    })
   }
 
   onActiveCollapse(workoutId: number, active: boolean):void {
@@ -155,7 +224,6 @@ export class TrainingPage implements OnInit {
   }
 
   onEditExercise(exercise: Exercise): void {
-
     this.editingExerc = exercise.id!;
     const editSets = this._fb.array(
       exercise.sets.map(({reps, weight, orderNumber}) => this._fb.group({
@@ -177,6 +245,21 @@ export class TrainingPage implements OnInit {
     (editSets.controls as FormGroup[]).forEach(setGroup => {
       setsControl.push(setGroup);
     });
+  }
+
+  onDeleteExercise(id: number): void {
+    this.deleteExercId = id;
+    this._exerciseService.deleteExercise(id).subscribe({
+      next: () => {
+        this.deleteExercId = null;
+        this.getAllWorkouts();
+      }
+    });
+  }
+
+  onDeleteSerie(exerciseForm: FormGroup, serieIndx: number): void {
+    const sets = exerciseForm.get('sets') as FormArray;
+    sets.removeAt(serieIndx);
   }
 
   onCloseEditing(): void {
@@ -248,7 +331,7 @@ export class TrainingPage implements OnInit {
         this.deleteElement.style.width = `${this.threshold + 6}px`;
       } else {
         this.draggingElement.style.transform = `translateX(${0}px)`;
-        this.draggingElement.style.backgroundColor = 'hsl(var(--muted) / 0.5)';
+        this.draggingElement.style.backgroundColor = 'hsl(var(--background))';
         this.deleteElement.style.width = `${0}px`;
         this.deleteElement.style.backgroundColor = 'transparent';
       }

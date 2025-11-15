@@ -32,9 +32,10 @@ export class RequestService {
     });
   }
 
-  protected create<T>(url: string = '', data: T): Observable<T> {
+  protected create<T>(url: string = '', data: T, params?: Record<string, any>): Observable<T> {
     return this.http.post<T>(`${this.apiUrl}${url}`, data, {
       withCredentials: true,
+      params
     });
   }
 
@@ -48,7 +49,7 @@ export class RequestService {
     });
   }
 
-  protected delete(id: number | string, url: string = ''): Observable<void> {
+  protected delete(url: string = '', id: number | string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}${url}/${id}`, {
       withCredentials: true,
     });
