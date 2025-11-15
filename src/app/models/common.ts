@@ -10,4 +10,5 @@ export type LoadingKeys =
 | 'update_workout'
 | 'delete_workout'
 | 'update_exercise'
-| 'delete_exercise';
+| 'delete_exercise'
+| 'create_exercise';
