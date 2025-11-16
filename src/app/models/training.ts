@@ -44,7 +44,27 @@ export type ExerciseName =
 | 'hack'
 | 'quadriceps_extensor'
 | 'seated_femoral_cur'
-| 'lying_femoral_cur';
+| 'lying_femoral_cur'
+| 'smith_bench_press'
+| 'upper_chest_machine'
+| 'plain_chest_machine'
+| 'pulley_crossovers'
+| 'lat_pulldown_prone_grip'
+| 'lat_pulldown_supine_grip'
+| 'gironde_rownig'
+| 'lower_pulley_rowing_neutral_wide_grip'
+| 'lower_pulley_rowing_neutral_narrow_grip'
+| 'smith_barbell_row'
+| 'pullover'
+| 'unilateral_machine_row'
+| 'unilateral_dumbbell_row'
+| 'unilateral_dumbbell_curl'
+| 'unilateral_advanced_low_pulley_curl_elbow'
+| 'pulley_bench_french_press'
+| 'high_pulley_triceps'
+| 'rumanian_bar_dead_lift'
+| 'rumanian_dumbell_dead_lift'
+| 'hip_thrust';
 
 export type MuscleGroup = 'chest' | 'back' | 'leg' | 'arm' | 'shoulder'
 

@@ -8,18 +8,38 @@ export const GYM_EXERCISES: GymExercise[] = [
 		muscle: 'chest'
 	},
 	{
-		label: 'Pecho inclinado (Mancuernas)',
+		label: 'Press banca  (Multipower)',
+		value: 'smith_bench_press',
+		muscle: 'chest'
+	},
+	{
+		label: 'Press inclinado (Mancuernas)',
 		value: 'incline_dumbbell_bench_press',
 		muscle: 'chest'
 	},
 	{
-		label: 'Pecho inclinado (Multipower)',
+		label: 'Press inclinado (Multipower)',
 		value: 'incline_smith_bench_press',
 		muscle: 'chest'
 	},
 	{
 		label: 'Contractora',
 		value: 'contractor',
+		muscle: 'chest'
+	},
+	{
+		label: 'Pecho Superior (Máquina)',
+		value: 'upper_chest_machine',
+		muscle: 'chest'
+	},
+	{
+		label: 'Pecho plano (Máquina)',
+		value: 'plain_chest_machine',
+		muscle: 'chest'
+	},
+	{
+		label: 'Cruces de Polea',
+		value: 'pulley_crossovers',
 		muscle: 'chest'
 	},
 	{
@@ -30,6 +50,56 @@ export const GYM_EXERCISES: GymExercise[] = [
 	{
 		label: 'Jalón al pecho (Agarre neutro estrecho)',
 		value: 'lat_pulldown_narrow_neutral',
+		muscle: 'back'
+	},
+	{
+		label: 'Jalón al pecho (Agarre prono)',
+		value: 'lat_pulldown_prone_grip',
+		muscle: 'back'
+	},
+	{
+		label: 'Jalón al pecho (Agarre supino)',
+		value: 'lat_pulldown_supine_grip',
+		muscle: 'back'
+	},
+	{
+		label: 'Remo Gironda',
+		value: 'gironde_rownig',
+		muscle: 'back'
+	},
+	{
+		label: 'Remo bajo polea (Agarre neutro ancho)',
+		value: 'lower_pulley_rowing_neutral_wide_grip',
+		muscle: 'back'
+	},
+	{
+		label: 'Remo bajo polea (Agarre neutro estrecho)',
+		value: 'lower_pulley_rowing_neutral_narrow_grip',
+		muscle: 'back'
+	},
+	{
+		label: 'Remo barra (Multipower)',
+		value: 'smith_barbell_row',
+		muscle: 'back'
+	},
+	{
+		label: 'Pullover',
+		value: 'pullover',
+		muscle: 'back'
+	},
+	{
+		label: 'Remo máquina (Unilateral)',
+		value: 'unilateral_machine_row',
+		muscle: 'back'
+	},
+	{
+		label: 'Remo alto banco polea (Unilateral)',
+		value: 'unilateral_machine_row',
+		muscle: 'back'
+	},
+	{
+		label: 'Remo mancuerna (Unilateral)',
+		value: 'unilateral_dumbbell_row',
 		muscle: 'back'
 	},
 	{
@@ -53,7 +123,7 @@ export const GYM_EXERCISES: GymExercise[] = [
 		muscle: 'shoulder'
 	},
 	{
-		label: 'Elevaciones laterales (Mancuerna)',
+		label: 'Elevaciones laterales (Polea)',
 		value: 'pulley_lateral_raises',
 		muscle: 'shoulder'
 	},
@@ -78,8 +148,23 @@ export const GYM_EXERCISES: GymExercise[] = [
 		muscle: 'arm'
 	},
 	{
+		label: 'Curl macuerna (Unilateral)',
+		value: 'unilateral_dumbbell_curl',
+		muscle: 'arm'
+	},
+	{
+		label: 'Curl polea baja codo avanzado (Unilateral)',
+		value: 'unilateral_advanced_low_pulley_curl_elbow',
+		muscle: 'arm'
+	},
+	{
 		label: 'Press francés',
 		value: 'french_press',
+		muscle: 'arm'
+	},
+	{
+		label: 'Press francés banco polea',
+		value: 'pulley_bench_french_press',
 		muscle: 'arm'
 	},
 	{
@@ -88,8 +173,23 @@ export const GYM_EXERCISES: GymExercise[] = [
 		muscle: 'arm'
 	},
 	{
+		label: 'Tríceps polea alta (Unilateral)',
+		value: 'high_pulley_triceps',
+		muscle: 'arm'
+	},
+	{
 		label: 'Peso Muerto',
 		value: 'dead_lift',
+		muscle: 'leg'
+	},
+	{
+		label: 'Peso Muerto Rumano (Barra)',
+		value: 'rumanian_bar_dead_lift',
+		muscle: 'leg'
+	},
+	{
+		label: 'Peso Muerto Rumano (Mancuerna)',
+		value: 'rumanian_dumbell_dead_lift',
 		muscle: 'leg'
 	},
 	{
@@ -120,6 +220,11 @@ export const GYM_EXERCISES: GymExercise[] = [
 	{
 		label: 'Sentadilla',
 		value: 'squad',
+		muscle: 'leg'
+	},
+	{
+		label: 'Hip Thrust',
+		value: 'hip_thrust',
 		muscle: 'leg'
 	}
 ]

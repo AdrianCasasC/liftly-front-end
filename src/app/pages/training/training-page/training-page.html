@@ -22,16 +22,16 @@
 	</div>
 	} @else {
 	@if (allWorkouts().length === 0) {
-	<p class="text-muted-foreground text-lg">Todavía no hay entrenamientos.<br>¡Crea tu primer entrenamiento para
+	<p class="text-muted-foreground text-lg text-center">Todavía no hay entrenamientos.<br>¡Crea tu primer entrenamiento para
 		empezar!</p>
 	} @else {
-	@for (workout of allWorkouts(); track $index) {
+	@for (workout of allWorkouts(); let workoutIdx = $index; track workoutIdx) {
 	<nz-collapse class="border-none" [nzGhost]="true" [nzExpandIconPosition]="'end'">
 		<nz-collapse-panel [class.shadow-primary]="activeWorkout === workout.id"
 			(nzActiveChange)="onActiveCollapse(workout?.id || 0, $event)" [nzHeader]="collapseHeader" [nzShowArrow]="false"
 			class="bg-card !rounded-lg relative">
 			<div class="space-y-3 bg-card">
-				@for (exerc of workout.exercises; track $index) {
+				@for (exerc of workout.exercises; let exercIdx = $index; track exercIdx) {
 				<div class="relative w-full">
 
 
@@ -40,14 +40,14 @@
 						(mousedown)="onTouchStart($event, exerc.id?.toString() ?? '')" (mousemove)="onTouchMove($event)"
 						(mouseup)="onTouchEnd()"
 						class="flex items-center justify-between p-3 rounded-lg bg-background text-left relative z-20 w-full">
-						@if (loadingMap().get(LOADING_KEYS.update_exercise) && editingExerc === exerc.id ||
+						@if (loadingMap().get(LOADING_KEYS.update_exercise) && editingExercId === exerc.id ||
 						loadingMap().get(LOADING_KEYS.delete_exercise) && deleteExercId === exerc.id) {
 						<div class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black/70">
 							<nz-icon class="text-primary w-8 h-8 text-[32px]" nzType="loading" nzTheme="outline" />
 						</div>
 						}
 						<div class="w-full">
-							@if (editingExerc === exerc.id) {
+							@if (editingExercId === exerc.id) {
 							<!-- Selector de ejercicios -->
 
 							<form [formGroup]="editExercForm">
@@ -129,7 +129,7 @@
 									<div class="flex flex-col">
 										<label
 											class="text-contrast mb-2 ml-[6px] block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label>
-										<input formControlName="reps" type="text"
+										<input formControlName="reps" type="number"
 											class="text-contrast flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
 									</div>
 
@@ -137,7 +137,7 @@
 										<label
 											class="text-contrast mb-2 ml-[6px] block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Peso
 											(kg)</label>
-										<input formControlName="weight" type="text"
+										<input formControlName="weight" type="number"
 											class="text-contrast flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
 									</div>
 								</div>
@@ -151,7 +151,7 @@
 										<path _ngcontent-ng-c1310402835="" d="M12 5v14"></path>
 									</svg>Añadir serie</button>
 								<div class="flex gap-4 pt-4">
-									<button (click)="onSubmitEditing()"
+									<button (click)="onSubmitEditing(workoutIdx, exercIdx)"
 										class="flex items-center justify-center whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50  bg-primary text-primary-foreground hover:bg-primary/90 h-6 w-full px-4 flex-1 gradient-primary py-4 text-md"
 										[disabled]="editExercForm.invalid">Guardar</button>
 									<button (click)="onCloseEditing()"
@@ -172,7 +172,7 @@
 
 						</div>
 					</div>
-					<div [id]="'delete_' + exerc.id?.toString()" (click)="onDeleteExercise(exerc.id!)"
+					<div [id]="'delete_' + exerc.id?.toString()" (click)="onDeleteExercise(workoutIdx, exerc.id!)"
 						class="absolute top-0 right-0 w-0 h-full z-10 flex items-center justify-center">
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
 							stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -274,7 +274,7 @@
 							<div class="flex flex-col">
 								<label
 									class="text-contrast mb-2 ml-[6px] block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label>
-								<input formControlName="reps" type="text"
+								<input formControlName="reps" type="number"
 									class="text-contrast flex h-10 w-full rounded-md border border-input bg-card px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
 							</div>
 
@@ -282,7 +282,7 @@
 								<label
 									class="text-contrast mb-2 ml-[6px] block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Peso
 									(kg)</label>
-								<input formControlName="weight" type="text"
+								<input formControlName="weight" type="number"
 									class="text-contrast flex h-10 w-full rounded-md border border-input bg-card px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
 							</div>
 						</div>
@@ -296,7 +296,7 @@
 								<path _ngcontent-ng-c1310402835="" d="M12 5v14"></path>
 							</svg>Añadir serie</button>
 						<div class="flex gap-4 pt-4">
-							<button (click)="onConfirmAddExercise()"
+							<button (click)="onConfirmAddExercise(workoutIdx)"
 								class="flex items-center justify-center whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50  bg-primary text-primary-foreground hover:bg-primary/90 h-6 w-full px-4 flex-1 gradient-primary py-4 text-md"
 								[disabled]="newExercForm.invalid">Guardar</button>
 							<button (click)="onCancelAddExercise()"
@@ -424,10 +424,7 @@
 					</nz-dropdown-menu>
 				</div>
 
-				<label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Número
-					de Series</label>
-				<input formControlName="numberSets" type="number"
-					class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
+				
 
 				<div formArrayName="sets">
 					@for (setForm of getFormArrayFromGroup(exerciseForm, 'sets').controls; let j = $index; track j) {
@@ -447,7 +444,7 @@
 						<div class="flex flex-col">
 							<label
 								class="mb-2 ml-[6px] block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Reps</label>
-							<input formControlName="reps" type="text"
+							<input formControlName="reps" type="number"
 								class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
 						</div>
 
@@ -455,13 +452,22 @@
 							<label
 								class="mb-2 ml-[6px] block text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Peso
 								(kg)</label>
-							<input formControlName="weight" type="text"
+							<input formControlName="weight" type="number"
 								class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm">
 						</div>
 
 					</div>
 					}
 				</div>
+
+				<button (click)="onReplicateSerie(getFormGroup(exerciseForm))"
+					class="text-md inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 w-full gradient-primary py-6"><svg
+						_ngcontent-ng-c1310402835="" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+						viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						stroke-linejoin="round" class="lucide lucide-plus mr-2 h-5 w-5">
+						<path _ngcontent-ng-c1310402835="" d="M5 12h14"></path>
+						<path _ngcontent-ng-c1310402835="" d="M12 5v14"></path>
+					</svg>Añadir serie</button>
 
 
 				<div class="flex items-end"><button (click)="onRemoveExercise(i)"
@@ -479,8 +485,20 @@
 		</div>
 		}
 	</div>
-	<liftly-add-button [addButtonText]="'Añadir Ejercicio'" [saveButtonText]="'Guardar'" [cancelButtonText]="'Cancelar'"
+	<liftly-add-button id=saveContainer [addButtonText]="'Añadir Ejercicio'" [saveButtonText]="'Guardar'" [cancelButtonText]="'Cancelar'"
 		[buttonType]="'submit'" [disabled]="workoutForm.invalid" (save)="onConfirmCreateNewWorkout()"
 		(add)="onAddExercise()" (cancel)="onCancelNewWorkout()" />
 </form>
+}
+
+@if (showFlotingSaveButton && isAddingNewWorkout()) {
+	<div class="fixed right-5 bottom-5 flex gap-4 pt-4 z-[999]"><button
+		(click)="onConfirmCreateNewWorkout()"
+		class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 flex-1 gradient-primary py-6 text-lg"
+		[disabled]="workoutForm.invalid">Guardar</button>
+		<button
+		(click)="onCancelNewWorkout()"
+			class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 flex-1 py-6 text-lg">
+			Cancelar</button>
+	</div>
 }
