@@ -64,7 +64,9 @@ export type ExerciseName =
 | 'high_pulley_triceps'
 | 'rumanian_bar_dead_lift'
 | 'rumanian_dumbell_dead_lift'
-| 'hip_thrust';
+| 'hip_thrust'
+| 'glute_kick'
+| 'twins';
 
 export type MuscleGroup = 'chest' | 'back' | 'leg' | 'arm' | 'shoulder'
 

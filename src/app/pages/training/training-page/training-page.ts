@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { AddButton } from '@app/components/add-button/add-button';
 import { getExercisesByMuscleGroup, getMuscleGroupByExercise, GYM_EXERCISES, MUSCLE_GROUPS } from '@app/constants/training';
 import { Exercise, ExerciseName, ExerciseSet, GymExercise, MuscleGroup, Workout } from '@app/models/training';
@@ -13,10 +13,11 @@ import { ExerciseService } from '@app/services/exercise-service';
 import { LoadingService } from '@app/services/loading-service';
 import { LOADING_KEYS } from '@app/constants/loading';
 import { ActivatedRoute } from '@angular/router';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-training-page',
-  imports: [AddButton, NzDropDownModule, NzIconModule, ToLabelPipe, ReactiveFormsModule, NzCollapseModule],
+  imports: [AddButton, NzDropDownModule, NzIconModule, ToLabelPipe, ReactiveFormsModule, NzCollapseModule, NgClass],
   templateUrl: './training-page.html',
   styleUrl: './training-page.scss',
 })
@@ -27,13 +28,6 @@ export class TrainingPage implements OnInit, OnDestroy {
   private readonly _exerciseService = inject(ExerciseService);
   private readonly _loadingService = inject(LoadingService);
   private readonly _route = inject(ActivatedRoute);
-
-
-  /* Signals */
-  isAddingNewWorkout = signal<boolean>(false);
-  allWorkouts = this._trainingService.allWorkouts;
-  selectedWorkout = this._trainingService.workout;
-  loadingMap = this._loadingService.loadingMap
 
   /* Variables */
   private startX = 0;
@@ -50,12 +44,20 @@ export class TrainingPage implements OnInit, OnDestroy {
   gymExercises = GYM_EXERCISES;
   activeWorkout: number | null = null;
   editingExercId: number | null = null;
+  showPrevStates: Map<string, boolean> = new Map();
   day: string = '';
   isAddingNewExercise: boolean = false;
   edditingWorkoutId: number | null = null;
   deleteExercId: number | null = null;
   showFlotingSaveButton = false;
   private observer?: IntersectionObserver;
+
+  /* Signals */
+  isAddingNewWorkout = signal<boolean>(false);
+  isPanelOpened = signal<boolean>(false);
+  allWorkouts = this._trainingService.allWorkouts;
+  selectedWorkout = this._trainingService.workout;
+  loadingMap = this._loadingService.loadingMap;
 
   /* Forms */
   workoutForm: FormGroup = this._fb.group({
@@ -93,6 +95,12 @@ export class TrainingPage implements OnInit, OnDestroy {
     this._trainingService.getAllWorkouts({ date: this.day.replace('Z', '') }).subscribe();
   }
 
+  private fillShowPrevState(workouts: Workout[]): void {
+    workouts.forEach(workout => {
+      workout.exercises.forEach(exerc => this.showPrevStates.set(`show_${workout.id}_${exerc.id}`, false))
+    })
+  }
+
   private initSaveButtonObserve(): void {
     this.observer = new IntersectionObserver(entries => {
       const entry = entries[0];
@@ -104,6 +112,10 @@ export class TrainingPage implements OnInit, OnDestroy {
     const element = document.getElementById('saveContainer') as HTMLElement
 
     this.observer.observe(element);
+  }
+
+  constructor() {
+    effect(() => this.fillShowPrevState(this.allWorkouts()))
   }
 
   ngOnInit(): void {
@@ -297,13 +309,22 @@ export class TrainingPage implements OnInit, OnDestroy {
       sets
     }
     this._exerciseService.updateExercise(this.editingExercId?.toString() ?? '', editedExercise).subscribe({
-      next: ({name, sets}) => {
+      next: ({id, name, sets}) => {
         //this.getAllWorkouts();
-        this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, {name, sets})
+        this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, {id, name, sets})
         this.onCloseEditing();
       }
     });
     
+  }
+
+  onToggleSeePrevExerc(workoutId: number, exercId: number): void {
+    const prev = this.showPrevStates.get(`show_${workoutId}_${exercId}`);
+    this.showPrevStates.set(`show_${workoutId}_${exercId}`, !prev);
+  }
+
+  onTogglePanel(event: MouseEvent) {
+    event.stopPropagation(); // prevent clicking header from toggling
   }
 
   getFormGroup(form: AbstractControl<any, any>): FormGroup {
