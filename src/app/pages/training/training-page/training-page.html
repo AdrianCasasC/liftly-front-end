@@ -41,7 +41,7 @@
 						(click)="onTogglePanel($event)" (touchmove)="onTouchMove($event)" (touchend)="onTouchEnd()"
 						(mousedown)="onTouchStart($event, exerc.id?.toString() ?? '')" (mousemove)="onTouchMove($event)"
 						(mouseup)="onTouchEnd()"
-						class="flex flex-col items-center justify-between p-3 pb-9 rounded-lg bg-background text-left relative z-20 w-full">
+						class="flex flex-col items-center justify-between p-3 rounded-lg bg-background text-left relative z-20 w-full">
 						@if (loadingMap().get(LOADING_KEYS.update_exercise) && editingExercId === exerc.id ||
 						loadingMap().get(LOADING_KEYS.delete_exercise) && deleteExercId === exerc.id) {
 						<div class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black/70">
@@ -180,7 +180,7 @@
 					</div>
 					<!-- Collapse content -->
 					<div class="w-full bg-red-300" [ngClass]="{'collapse-content_open': showPrevStates.get(`show_${workout.id}_${exerc.id}`), 'collapse-content_closed': !showPrevStates.get(`show_${workout.id}_${exerc.id}`)}">
-
+						
 					</div>
 					<div (click)="onToggleSeePrevExerc(workout.id!, exerc.id!)"
 							class="w-full  rounded-bl-lg rounded-br-lg bg-primary text-center z-[999]">

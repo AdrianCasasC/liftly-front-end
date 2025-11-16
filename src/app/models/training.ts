@@ -10,7 +10,8 @@ export interface ExerciseSet {
 export interface Exercise {
 	id?: number;
 	name: ExerciseName;
-	sets: ExerciseSet[]
+	prevs: (Omit<Exercise, 'prevs'>)[];
+	sets: ExerciseSet[];
 }
 
 export interface Workout {

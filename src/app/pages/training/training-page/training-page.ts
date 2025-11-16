@@ -193,10 +193,11 @@ export class TrainingPage implements OnInit, OnDestroy {
     });
     const newExerc: Exercise = {
       name: this.newExercForm.value.name as ExerciseName,
+      prevs: [],
       sets: newExercSets
     }
     this._exerciseService.createExercise( this.edditingWorkoutId ?? 0, newExerc).subscribe({
-      next: ({id, name, sets}) => {
+      next: ({id, name, sets, prevs}) => {
         this.isAddingNewExercise = false;
         this.newExercForm.reset();
         const setsArray = this.newExercForm.get('sets') as FormArray;
@@ -206,7 +207,7 @@ export class TrainingPage implements OnInit, OnDestroy {
           reps: [null],
           weight: [null] 
         }));
-        this._trainingService.refreshCreateWorkoutExercise(workoutIdx, { id, name, sets})
+        this._trainingService.refreshCreateWorkoutExercise(workoutIdx, { id, name, sets, prevs})
       }
     });
   }
@@ -309,9 +310,8 @@ export class TrainingPage implements OnInit, OnDestroy {
       sets
     }
     this._exerciseService.updateExercise(this.editingExercId?.toString() ?? '', editedExercise).subscribe({
-      next: ({id, name, sets}) => {
-        //this.getAllWorkouts();
-        this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, {id, name, sets})
+      next: ({id, name, sets, prevs}) => {
+        this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, {id, name, sets, prevs})
         this.onCloseEditing();
       }
     });
