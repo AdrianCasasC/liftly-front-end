@@ -35,6 +35,27 @@ export class TrainingService extends RequestService {
     )
   }
 
+  refreshWorkoutExerciseByIndex(workoutIdx: number, exerciseIdx: number, exercise: Exercise): void {
+    this._allWorkouts.update(prev => {
+      prev[workoutIdx].exercises[exerciseIdx] = exercise;
+      return prev
+    });
+  }
+
+  refreshCreateWorkoutExercise(workoutIdx: number, exercise: Exercise): void {
+    this._allWorkouts.update(prev => {
+      prev[workoutIdx].exercises.push(exercise);
+      return prev
+    });
+  }
+
+  refreshDeleteWorkoutExercise(workoutIdx: number, exerciseId: number): void {
+    this._allWorkouts.update(prev => {
+      prev[workoutIdx].exercises = prev[workoutIdx].exercises.filter(exerc => exerc.id !== exerciseId);
+      return prev
+    })
+  }
+
   getWorkout(id: string): Observable<Workout> {
     const mapKey = 'getById';
     this._loadingService.setLoading(LOADING_KEYS.get_workout_by_id, true);
@@ -48,17 +69,17 @@ export class TrainingService extends RequestService {
     )
   }
 
-  createWorkout(workout: Workout): void {
+  createWorkout(workout: Workout): Observable<Workout> {
     const mapKey = 'create';
     this._loadingService.setLoading(LOADING_KEYS.create_workout, true);
-    this.create<Workout>(this._url, workout).pipe(
+    return this.create<Workout>(this._url, workout).pipe(
       tap(resp => this._notificationService.createSuccess('¡Entrenamiento  creado! ✅')),
       catchError((err) => {
         this._notificationService.createError('No se pudo crear el entrenamiento ⚠️')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.create_workout))
-    ).subscribe();
+    );
   }
 
   updateWorkout(workout: Workout, id: string): void {

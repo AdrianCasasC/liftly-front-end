@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { AddButton } from '@app/components/add-button/add-button';
 import { getExercisesByMuscleGroup, getMuscleGroupByExercise, GYM_EXERCISES, MUSCLE_GROUPS } from '@app/constants/training';
 import { Exercise, ExerciseName, ExerciseSet, GymExercise, MuscleGroup, Workout } from '@app/models/training';
@@ -20,13 +20,14 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './training-page.html',
   styleUrl: './training-page.scss',
 })
-export class TrainingPage implements OnInit {
+export class TrainingPage implements OnInit, OnDestroy {
   /** Injections */
   private readonly _fb = inject(FormBuilder);
   private readonly _trainingService = inject(TrainingService);
   private readonly _exerciseService = inject(ExerciseService);
   private readonly _loadingService = inject(LoadingService);
   private readonly _route = inject(ActivatedRoute);
+
 
   /* Signals */
   isAddingNewWorkout = signal<boolean>(false);
@@ -48,11 +49,15 @@ export class TrainingPage implements OnInit {
   muscleGroups = MUSCLE_GROUPS;
   gymExercises = GYM_EXERCISES;
   activeWorkout: number | null = null;
-  editingExerc: number | null = null;
+  editingExercId: number | null = null;
   day: string = '';
   isAddingNewExercise: boolean = false;
   edditingWorkoutId: number | null = null;
   deleteExercId: number | null = null;
+  showFlotingSaveButton = false;
+  private observer?: IntersectionObserver;
+
+  /* Forms */
   workoutForm: FormGroup = this._fb.group({
     name: ['', Validators.required],
     exercises: this._fb.array([], [minLengthArray(1)])
@@ -88,11 +93,27 @@ export class TrainingPage implements OnInit {
     this._trainingService.getAllWorkouts({ date: this.day.replace('Z', '') }).subscribe();
   }
 
+  private initSaveButtonObserve(): void {
+    this.observer = new IntersectionObserver(entries => {
+      const entry = entries[0];
+
+      // isIntersecting = true → element IS visible
+      // isIntersecting = false → element is OUT of view
+      this.showFlotingSaveButton = !entry.isIntersecting;
+    });
+    const element = document.getElementById('saveContainer') as HTMLElement
+
+    this.observer.observe(element);
+  }
+
   ngOnInit(): void {
     this.day = this._route.snapshot.queryParamMap.get('date') ?? '';
     this.getAllWorkouts();
   }
 
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
+  }
 
   getFormArrayFromGroup(group: AbstractControl<any, any>, controlName: string): FormArray {
     return group.get(controlName) as FormArray
@@ -104,12 +125,17 @@ export class TrainingPage implements OnInit {
 
   onCreateNewWorkout(): void {
     this.isAddingNewWorkout.set(true);
+    setTimeout(() => this.initSaveButtonObserve(), 300)
   }
 
   onConfirmCreateNewWorkout(): void {
     if (this.workoutForm.invalid) return;
-    this._trainingService.createWorkout(this.workoutForm.value)
-    this.isAddingNewWorkout.set(false);
+    this._trainingService.createWorkout(this.workoutForm.value).subscribe({
+      next: () => {
+        this.isAddingNewWorkout.set(false);
+        this.getAllWorkouts();
+      }
+    });
   }
 
   onCancelNewWorkout(): void {
@@ -117,10 +143,14 @@ export class TrainingPage implements OnInit {
   }
 
   onAddExercise(): void {
+    let defaultMuscle = 'chest';
+    if (this.exercises.length > 0) {
+      const lastExercise = this.exercises.value[this.exercises.length - 1];
+      defaultMuscle = lastExercise.muscle
+    }
     const exerciseForm = this._fb.group({
-      muscle: ['chest', Validators.required],
-      name: ['bench_press', Validators.required],
-      numberSets: [1, Validators.required],
+      muscle: [defaultMuscle, Validators.required],
+      name: ['', Validators.required],
       sets: this._fb.array([this._fb.group({
         reps: [null],
         weight: [null] 
@@ -132,17 +162,6 @@ export class TrainingPage implements OnInit {
       })
     });
     const setsArray = exerciseForm.get('sets') as FormArray;
-    exerciseForm.get('numberSets')?.valueChanges.subscribe((value: number | null) => {
-      setsArray.clear();
-      if (value === null) return;
-      for (let i = 0; i < value; i++) {
-        const set = this._fb.group({
-          reps: [null],
-          weight: [null] 
-        })
-        setsArray.push(set);
-      }
-    })
     this.exercises.push(exerciseForm);
   }
 
@@ -151,7 +170,7 @@ export class TrainingPage implements OnInit {
     this.isAddingNewExercise = true;
   }
 
-  onConfirmAddExercise(): void {
+  onConfirmAddExercise(workoutIdx: number): void {
     const newExercSets: ExerciseSet[] = [];
     this.newExercForm.value.sets?.forEach(({orderNumber, reps, weight}) => {
       newExercSets.push({
@@ -165,7 +184,7 @@ export class TrainingPage implements OnInit {
       sets: newExercSets
     }
     this._exerciseService.createExercise( this.edditingWorkoutId ?? 0, newExerc).subscribe({
-      next: () => {
+      next: ({id, name, sets}) => {
         this.isAddingNewExercise = false;
         this.newExercForm.reset();
         const setsArray = this.newExercForm.get('sets') as FormArray;
@@ -175,7 +194,7 @@ export class TrainingPage implements OnInit {
           reps: [null],
           weight: [null] 
         }));
-        this.getAllWorkouts();
+        this._trainingService.refreshCreateWorkoutExercise(workoutIdx, { id, name, sets})
       }
     });
   }
@@ -224,7 +243,7 @@ export class TrainingPage implements OnInit {
   }
 
   onEditExercise(exercise: Exercise): void {
-    this.editingExerc = exercise.id!;
+    this.editingExercId = exercise.id!;
     const editSets = this._fb.array(
       exercise.sets.map(({reps, weight, orderNumber}) => this._fb.group({
         reps,
@@ -247,12 +266,12 @@ export class TrainingPage implements OnInit {
     });
   }
 
-  onDeleteExercise(id: number): void {
+  onDeleteExercise(workoutIdx: number, id: number): void {
     this.deleteExercId = id;
     this._exerciseService.deleteExercise(id).subscribe({
       next: () => {
         this.deleteExercId = null;
-        this.getAllWorkouts();
+        this._trainingService.refreshDeleteWorkoutExercise(workoutIdx, id)
       }
     });
   }
@@ -263,10 +282,10 @@ export class TrainingPage implements OnInit {
   }
 
   onCloseEditing(): void {
-    this.editingExerc = null;
+    this.editingExercId = null;
   }
 
-  onSubmitEditing(): void {
+  onSubmitEditing(workoutIdx: number, exercIdx: number): void {
     const setsFormValue = this.editExercForm.value.sets as any[];
     const sets: ExerciseSet[] = setsFormValue.map((s, idx) => ({
       reps: s.reps,
@@ -277,9 +296,10 @@ export class TrainingPage implements OnInit {
       name: this.editExercForm.value.name! as ExerciseName,
       sets
     }
-    this._exerciseService.updateExercise(this.editingExerc?.toString() ?? '', editedExercise).subscribe({
-      next: () => {
-        this.getAllWorkouts();
+    this._exerciseService.updateExercise(this.editingExercId?.toString() ?? '', editedExercise).subscribe({
+      next: ({name, sets}) => {
+        //this.getAllWorkouts();
+        this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, {name, sets})
         this.onCloseEditing();
       }
     });
