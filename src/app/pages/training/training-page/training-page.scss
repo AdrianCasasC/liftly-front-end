@@ -3,6 +3,17 @@
 	background-color: red;
 }
 
+.collapse-content {
+	&_open {
+		transition: height 300ms ease-in-out;
+		height: 40px;
+	}
+	&_closed {
+		transition: height 300ms ease-in-out;
+		height: 0px;
+	}
+}
+
 ::ng-deep {
 	.ant-menu-title-content,
 	.anticon.ant-collapse-arrow {

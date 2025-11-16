@@ -226,6 +226,16 @@ export const GYM_EXERCISES: GymExercise[] = [
 		label: 'Hip Thrust',
 		value: 'hip_thrust',
 		muscle: 'leg'
+	},
+	{
+		label: 'Patada Glúteo (Máquina)',
+		value: 'glute_kick',
+		muscle: 'leg'
+	},
+	{
+		label: 'Gemelos',
+		value: 'twins',
+		muscle: 'leg'
 	}
 ]
 

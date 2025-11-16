@@ -10,7 +10,8 @@ export interface ExerciseSet {
 export interface Exercise {
 	id?: number;
 	name: ExerciseName;
-	sets: ExerciseSet[]
+	prevs: (Omit<Exercise, 'prevs'>)[];
+	sets: ExerciseSet[];
 }
 
 export interface Workout {
@@ -64,7 +65,9 @@ export type ExerciseName =
 | 'high_pulley_triceps'
 | 'rumanian_bar_dead_lift'
 | 'rumanian_dumbell_dead_lift'
-| 'hip_thrust';
+| 'hip_thrust'
+| 'glute_kick'
+| 'twins';
 
 export type MuscleGroup = 'chest' | 'back' | 'leg' | 'arm' | 'shoulder'
 
