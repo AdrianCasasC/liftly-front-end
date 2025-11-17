@@ -7,10 +7,15 @@ export interface ExerciseSet {
 	weight: number;
 }
 
+export interface PrevExercise {
+	date: string;
+	sets: ExerciseSet[];
+}
+
 export interface Exercise {
 	id?: number;
 	name: ExerciseName;
-	prevs: (Omit<Exercise, 'prevs'>)[];
+	prevs: PrevExercise[];
 	sets: ExerciseSet[];
 }
 
@@ -19,6 +24,15 @@ export interface Workout {
 	name: string;
 	exercises: Exercise[];
 	createdAt: Date;
+}
+
+export interface ClosestExercise {
+	exerciseId?: number;
+	workoutId: number;
+	exerciseName: string;
+	workoutName: string;
+	workoutDate: string;
+	sets: ExerciseSet[];
 }
 
 export type ExerciseName =

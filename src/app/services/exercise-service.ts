@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { RequestService } from './request';
-import { Exercise } from '@app/models/training';
+import { ClosestExercise, Exercise } from '@app/models/training';
 import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification';
 import { LoadingService } from './loading-service';
@@ -49,6 +49,17 @@ export class ExerciseService extends RequestService {
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.delete_exercise))
+    )
+  }
+
+  getClosestExercises(date: string, name: string): Observable<ClosestExercise[]> {
+    this._loadingService.setLoading(LOADING_KEYS.close_exercise, true);
+    return this.getAll<ClosestExercise>(`${this._url}/closest`, { date, name}).pipe(
+      catchError((err) => {
+        this._notificationService.createError('No se pudo obtener ejercicios anteriores ⚠️')
+        return throwError(() => new Error(err));
+      }),
+      finalize(() => this._loadingService.removeLoading(LOADING_KEYS.close_exercise))
     )
   }
 }

@@ -42,14 +42,14 @@
 						(mousedown)="onTouchStart($event, exerc.id?.toString() ?? '')" (mousemove)="onTouchMove($event)"
 						(mouseup)="onTouchEnd()"
 						class="flex flex-col items-center justify-between p-3 rounded-lg bg-background text-left relative z-20 w-full">
-						@if (loadingMap().get(LOADING_KEYS.update_exercise) && editingExercId === exerc.id ||
+						@if (loadingMap().get(LOADING_KEYS.update_exercise) && editExercId === exerc.id ||
 						loadingMap().get(LOADING_KEYS.delete_exercise) && deleteExercId === exerc.id) {
 						<div class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black/70">
 							<nz-icon class="text-primary w-8 h-8 text-[32px]" nzType="loading" nzTheme="outline" />
 						</div>
 						}
 						<div class="w-full">
-							@if (editingExercId === exerc.id) {
+							@if (editExercId === exerc.id) {
 							<!-- Selector de ejercicios -->
 
 							<form [formGroup]="editExercForm">
@@ -179,12 +179,25 @@
 					
 					</div>
 					<!-- Collapse content -->
-					<div class="w-full bg-red-300" [ngClass]="{'collapse-content_open': showPrevStates.get(`show_${workout.id}_${exerc.id}`), 'collapse-content_closed': !showPrevStates.get(`show_${workout.id}_${exerc.id}`)}">
-						
+					<div class="w-full bg-[#ac9a7f] p-3 flex flex-col gap-2" [ngClass]="{'collapse-content_open': showPrevStates.get(`show_${workout.id}_${exerc.id}`), 'collapse-content_closed': !showPrevStates.get(`show_${workout.id}_${exerc.id}`)}">
+						@for (prev of exerc.prevs; track $index) {
+							<div class="flex flex-col">
+								<span class="font-bold mb-1">Fecha {{ prev.date }}</span>
+								<div class="flex flex-col">
+									@for (set of prev.sets; let setInd = $index; track setInd) {
+										<span>Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</span>
+									}
+								</div>
+							</div>
+						}
 					</div>
-					<div (click)="onToggleSeePrevExerc(workout.id!, exerc.id!)"
+					<div (click)="onToggleSeePrevExerc(workout.id!, exerc.id!, exerc.name)"
 							class="w-full  rounded-bl-lg rounded-br-lg bg-primary text-center z-[999]">
-							<span class="text-white">{{ isPanelOpened() && showPrevStates.get(`show_${workout.id}_${exerc.id}`) ? 'Esconder' : 'Ver anteriores' }}</span>
+							@if (loadingMap().get(LOADING_KEYS.close_exercise) && prevExercId === exerc.id) {
+								<nz-icon class="text-white w-4 h-4 text-xs" nzType="loading" nzTheme="outline" />
+							} @else {
+								<span class="text-white">{{ showPrevStates.get(`show_${workout.id}_${exerc.id}`) ? 'Esconder' : 'Ver anteriores' }}</span>
+							}
 						</div>
 					<div [id]="'delete_' + exerc.id?.toString()" (click)="onDeleteExercise(workoutIdx, exerc.id!)"
 						class="absolute top-0 right-0 w-0 h-full z-10 flex items-center justify-center">

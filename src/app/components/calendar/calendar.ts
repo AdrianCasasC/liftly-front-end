@@ -45,7 +45,7 @@ export class Calendar {
 
   onSelectDay(day: number): void {
     this._router.navigate(['/training'], {
-      queryParams: { date: new Date(this.selectedYear(), this.selectedMonth(), day + 1, 0, 0, 0).toISOString() }
+      queryParams: { date: new Date(this.selectedYear(), this.selectedMonth(), day + 1, 0, 0, 0).toISOString().split("T")[0] }
     });
   }
 }
