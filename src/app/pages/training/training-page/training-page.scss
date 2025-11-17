@@ -5,12 +5,13 @@
 
 .collapse-content {
 	&_open {
-		transition: height 300ms ease-in-out;
-		height: 40px;
+		transition: max-height 300ms ease-in-out;
+		height: fit-content;
+		max-height: 1000px;
 	}
 	&_closed {
-		transition: height 300ms ease-in-out;
-		height: 0px;
+		transition: max-height 300ms ease-in-out;
+		max-height: 0px;
 	}
 }
 

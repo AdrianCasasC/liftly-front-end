@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { RequestService } from './request';
-import { Exercise, Workout } from '@app/models/training';
+import { ClosestExercise, Exercise, Workout } from '@app/models/training';
 import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification';
 import { LoadingService } from './loading-service';
@@ -56,6 +56,18 @@ export class TrainingService extends RequestService {
     })
   }
 
+  fillPrevExercises(prevExercises: ClosestExercise[], workoutId: number, exerciseId: number): void {
+    const workoutIdx = this._allWorkouts().findIndex(workout => workout.id === workoutId);
+    if (workoutIdx < 0) return;
+    this._allWorkouts.update(prev => {
+      const exercToFill = prev[workoutIdx].exercises.find(exerc => exerc.id === exerciseId);
+      if (exercToFill) {
+        exercToFill.prevs = prevExercises.map(prevExerc => ({ date: prevExerc.workoutDate, sets: prevExerc.sets}))
+      }
+      return prev;
+    })
+  }
+
   getWorkout(id: string): Observable<Workout> {
     const mapKey = 'getById';
     this._loadingService.setLoading(LOADING_KEYS.get_workout_by_id, true);
@@ -69,10 +81,10 @@ export class TrainingService extends RequestService {
     )
   }
 
-  createWorkout(workout: Workout): Observable<Workout> {
+  createWorkout(workout: Workout, date: string): Observable<Workout> {
     const mapKey = 'create';
     this._loadingService.setLoading(LOADING_KEYS.create_workout, true);
-    return this.create<Workout>(this._url, workout).pipe(
+    return this.create<Workout>(this._url, workout, { creationDate: date}).pipe(
       tap(resp => this._notificationService.createSuccess('¡Entrenamiento  creado! ✅')),
       catchError((err) => {
         this._notificationService.createError('No se pudo crear el entrenamiento ⚠️')

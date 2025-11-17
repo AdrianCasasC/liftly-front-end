@@ -43,7 +43,8 @@ export class TrainingPage implements OnInit, OnDestroy {
   muscleGroups = MUSCLE_GROUPS;
   gymExercises = GYM_EXERCISES;
   activeWorkout: number | null = null;
-  editingExercId: number | null = null;
+  editExercId: number | null = null;
+  prevExercId: number | null = null;
   showPrevStates: Map<string, boolean> = new Map();
   day: string = '';
   isAddingNewExercise: boolean = false;
@@ -54,7 +55,6 @@ export class TrainingPage implements OnInit, OnDestroy {
 
   /* Signals */
   isAddingNewWorkout = signal<boolean>(false);
-  isPanelOpened = signal<boolean>(false);
   allWorkouts = this._trainingService.allWorkouts;
   selectedWorkout = this._trainingService.workout;
   loadingMap = this._loadingService.loadingMap;
@@ -92,7 +92,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   }
 
   private getAllWorkouts(): void {
-    this._trainingService.getAllWorkouts({ date: this.day.replace('Z', '') }).subscribe();
+    this._trainingService.getAllWorkouts({ date: this.day }).subscribe();
   }
 
   private fillShowPrevState(workouts: Workout[]): void {
@@ -142,7 +142,7 @@ export class TrainingPage implements OnInit, OnDestroy {
 
   onConfirmCreateNewWorkout(): void {
     if (this.workoutForm.invalid) return;
-    this._trainingService.createWorkout(this.workoutForm.value).subscribe({
+    this._trainingService.createWorkout(this.workoutForm.value, this.day).subscribe({
       next: () => {
         this.isAddingNewWorkout.set(false);
         this.getAllWorkouts();
@@ -256,7 +256,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   }
 
   onEditExercise(exercise: Exercise): void {
-    this.editingExercId = exercise.id!;
+    this.editExercId = exercise.id!;
     const editSets = this._fb.array(
       exercise.sets.map(({reps, weight, orderNumber}) => this._fb.group({
         reps,
@@ -295,7 +295,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   }
 
   onCloseEditing(): void {
-    this.editingExercId = null;
+    this.editExercId = null;
   }
 
   onSubmitEditing(workoutIdx: number, exercIdx: number): void {
@@ -309,7 +309,7 @@ export class TrainingPage implements OnInit, OnDestroy {
       name: this.editExercForm.value.name! as ExerciseName,
       sets
     }
-    this._exerciseService.updateExercise(this.editingExercId?.toString() ?? '', editedExercise).subscribe({
+    this._exerciseService.updateExercise(this.editExercId?.toString() ?? '', editedExercise).subscribe({
       next: ({id, name, sets, prevs}) => {
         this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, {id, name, sets, prevs})
         this.onCloseEditing();
@@ -318,9 +318,20 @@ export class TrainingPage implements OnInit, OnDestroy {
     
   }
 
-  onToggleSeePrevExerc(workoutId: number, exercId: number): void {
-    const prev = this.showPrevStates.get(`show_${workoutId}_${exercId}`);
-    this.showPrevStates.set(`show_${workoutId}_${exercId}`, !prev);
+  onToggleSeePrevExerc(workoutId: number, exercId: number, exercName: string): void {
+    this.prevExercId = exercId;
+    const prevState = this.showPrevStates.get(`show_${workoutId}_${exercId}`);
+    if (prevState) {
+      this.showPrevStates.set(`show_${workoutId}_${exercId}`, !prevState);
+      return;
+    }
+    this._exerciseService.getClosestExercises(this.day, exercName).subscribe({
+      next: (prevExerc) => {
+        this._trainingService.fillPrevExercises(prevExerc, workoutId, exercId);
+        this.showPrevStates.set(`show_${workoutId}_${exercId}`, !prevState);
+        this.prevExercId = null;
+      }
+    });
   }
 
   onTogglePanel(event: MouseEvent) {
