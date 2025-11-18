@@ -22,6 +22,8 @@ export default {
         foreground: "hsl(var(--foreground))",
         gradient: "hsl(var(--gradient-primary))",
         contrast: "var(--contrast-color)",
+        terciary: "var(--terciary)",
+        terciary_bg: "var(--terciary-bg)",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",

@@ -14,10 +14,11 @@ import { LoadingService } from '@app/services/loading-service';
 import { LOADING_KEYS } from '@app/constants/loading';
 import { ActivatedRoute } from '@angular/router';
 import { NgClass } from '@angular/common';
+import { DateFormatPipe } from '@app/pipes/date-format-pipe';
 
 @Component({
   selector: 'app-training-page',
-  imports: [AddButton, NzDropDownModule, NzIconModule, ToLabelPipe, ReactiveFormsModule, NzCollapseModule, NgClass],
+  imports: [AddButton, NzDropDownModule, NzIconModule, ToLabelPipe, ReactiveFormsModule, NzCollapseModule, NgClass, DateFormatPipe],
   templateUrl: './training-page.html',
   styleUrl: './training-page.scss',
 })
@@ -318,17 +319,18 @@ export class TrainingPage implements OnInit, OnDestroy {
     
   }
 
-  onToggleSeePrevExerc(workoutId: number, exercId: number, exercName: string): void {
-    this.prevExercId = exercId;
-    const prevState = this.showPrevStates.get(`show_${workoutId}_${exercId}`);
+  onToggleSeePrevExerc(workoutId: number, exerc: Exercise): void {
+    this.prevExercId = exerc.id!;
+    const prevState = this.showPrevStates.get(`show_${workoutId}_${exerc.id}`);
     if (prevState) {
-      this.showPrevStates.set(`show_${workoutId}_${exercId}`, !prevState);
+      this.showPrevStates.set(`show_${workoutId}_${exerc.id!}`, !prevState);
       return;
     }
-    this._exerciseService.getClosestExercises(this.day, exercName).subscribe({
+    this._exerciseService.getClosestExercises(this.day, exerc.name).subscribe({
       next: (prevExerc) => {
-        this._trainingService.fillPrevExercises(prevExerc, workoutId, exercId);
-        this.showPrevStates.set(`show_${workoutId}_${exercId}`, !prevState);
+        console.log("Prev: ", prevExerc);
+        this._trainingService.fillPrevExercises(prevExerc, workoutId, exerc);
+        this.showPrevStates.set(`show_${workoutId}_${exerc.id}`, !prevState);
         this.prevExercId = null;
       }
     });

@@ -13,6 +13,7 @@ All colors MUST be HSL.
   :root {
     --primary-bg: white;
     --secondary-bg: linear-gradient(135deg, hsl(6 78% 57%), hsl(24 95% 58%));
+    --terciary-bg: #ac9a7f;
     --background: 0 0% 100%;
     --foreground: 0 0% 10%;
     --contrast-color: black;
@@ -28,6 +29,8 @@ All colors MUST be HSL.
 
     --secondary: 24 95% 58%;
     --secondary-foreground: 0 0% 10%;
+
+    --terciary: #4d3535;
 
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;

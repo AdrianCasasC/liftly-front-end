@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { RequestService } from './request';
-import { ClosestExercise, Exercise, Workout } from '@app/models/training';
+import { ClosestExercise, Exercise, ExerciseSet, Workout } from '@app/models/training';
 import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification';
 import { LoadingService } from './loading-service';
@@ -26,7 +26,12 @@ export class TrainingService extends RequestService {
   getAllWorkouts(params?: Record<string, any>): Observable<Workout[]> {
     this._loadingService.setLoading(LOADING_KEYS.get_all_workouts, true);
     return this.getAll<Workout>(this._url, params).pipe(
-      tap((res) => this._allWorkouts.set(res)),
+      tap((res) => {
+        this._allWorkouts.set(res.map(work => {
+          work.exercises.forEach(exerc => exerc.prevs = []);
+          return work;
+        }))
+      }),
       catchError((err) => {
         this._notificationService.createError('No se pudo obtener los entrenamientos ⚠️')
         return throwError(() => new Error(err));
@@ -56,13 +61,30 @@ export class TrainingService extends RequestService {
     })
   }
 
-  fillPrevExercises(prevExercises: ClosestExercise[], workoutId: number, exerciseId: number): void {
+  getSetRepsDiff(set: ExerciseSet, prevSet: ExerciseSet): number | null {
+    if (!set || !prevSet) return null;
+    return set.reps - prevSet.reps;
+  }
+
+  getSetWeightDiff(set: ExerciseSet, prevSet: ExerciseSet): number | null {
+    if (!set || !prevSet) return null;
+    return set.weight - prevSet.weight;
+  }
+
+  fillPrevExercises(prevExercises: ClosestExercise[], workoutId: number, exercise: Exercise): void {
     const workoutIdx = this._allWorkouts().findIndex(workout => workout.id === workoutId);
     if (workoutIdx < 0) return;
     this._allWorkouts.update(prev => {
-      const exercToFill = prev[workoutIdx].exercises.find(exerc => exerc.id === exerciseId);
+      const exercToFill = prev[workoutIdx].exercises.find(exerc => exerc.id === exercise.id);
       if (exercToFill) {
-        exercToFill.prevs = prevExercises.map(prevExerc => ({ date: prevExerc.workoutDate, sets: prevExerc.sets}))
+        exercToFill.prevs = prevExercises.map(prevExerc => ({ 
+          date: prevExerc.workoutDate,
+          sets: prevExerc.sets.map((prevSet, idx) => ({
+            ...prevSet,
+            diffReps: this.getSetRepsDiff(exercise.sets[idx], prevSet) || 0,
+            diffWeight: this.getSetWeightDiff(exercise.sets[idx], prevSet) || 0
+          })),
+        }))
       }
       return prev;
     })
