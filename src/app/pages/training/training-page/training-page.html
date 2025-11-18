@@ -41,7 +41,7 @@
 						(click)="onTogglePanel($event)" (touchmove)="onTouchMove($event)" (touchend)="onTouchEnd()"
 						(mousedown)="onTouchStart($event, exerc.id?.toString() ?? '')" (mousemove)="onTouchMove($event)"
 						(mouseup)="onTouchEnd()"
-						class="flex flex-col items-center justify-between p-3 rounded-lg bg-background text-left relative z-20 w-full">
+						class="flex flex-col items-center justify-between p-3 rounded-tl-lg rounded-tr-lg bg-background text-left relative z-20 w-full">
 						@if (loadingMap().get(LOADING_KEYS.update_exercise) && editExercId === exerc.id ||
 						loadingMap().get(LOADING_KEYS.delete_exercise) && deleteExercId === exerc.id) {
 						<div class="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black/70">
@@ -169,7 +169,7 @@
 								<nz-icon (click)="onEditExercise(exerc)" class="text-primary text-xl" nzType="edit" nzTheme="outline" />
 							</div>
 							@for (set of exerc.sets; let setInd = $index; track setInd) {
-							<p class="text-xs text-muted-foreground">Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg
+							<p class="text-xs text-black font-bold rounded-sm p-1 bg-[#6d6b6b] mb-1">Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg
 							</p>
 							}
 							}
@@ -179,19 +179,34 @@
 					
 					</div>
 					<!-- Collapse content -->
-					<div class="w-full bg-[#ac9a7f] p-3 flex flex-col gap-2" [ngClass]="{'collapse-content_open': showPrevStates.get(`show_${workout.id}_${exerc.id}`), 'collapse-content_closed': !showPrevStates.get(`show_${workout.id}_${exerc.id}`)}">
-						@for (prev of exerc.prevs; track $index) {
-							<div class="flex flex-col">
-								<span class="font-bold mb-1">Fecha {{ prev.date }}</span>
-								<div class="flex flex-col">
-									@for (set of prev.sets; let setInd = $index; track setInd) {
-										<span>Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</span>
-									}
-								</div>
-							</div>
-						}
-					</div>
-					<div (click)="onToggleSeePrevExerc(workout.id!, exerc.id!, exerc.name)"
+					 <div class="overflow-hidden " [ngClass]="{'collapse-content_open': showPrevStates.get(`show_${workout.id}_${exerc.id}`), 'collapse-content_closed': !showPrevStates.get(`show_${workout.id}_${exerc.id}`)}">
+						 <div class="w-full bg-terciary_bg p-3 flex flex-col gap-2" >
+							@if (!exerc.prevs.length) {
+								<p class="text-center text-md text-terciary font-bold">No se han encontrado coincidencias de este ejercicio en anteriores entrenamientos 🤨</p>
+							} @else {
+								@for (prev of exerc.prevs; track $index) {
+									<div class="flex flex-col">
+										<span class="font-bold mb-1 text-terciary underline">{{ prev.date | dateFormat }}</span>
+										<div class="flex flex-col gap-1">
+											@for (set of prev.sets; let setInd = $index; track setInd) {
+												<div class="flex justify-between">
+													<!-- <span class="p-1 bg-[#864646] rounded-sm text-contrast">Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</span> -->
+													<div class="flex items-center justify-between w-full gap-1 p-1 bg-[#864646] rounded-sm text-contrast">
+														<span>Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</span>
+														<div class="flex gap-1">
+															<span class="p-1 text-contrast text-center min-w-20 block rounded-sm bg-slate-400" [ngClass]="{'!bg-green-300': (set.diffReps || 0) > 0 , '!bg-red-300': (set.diffReps || 0) < 0}">{{ (set.diffReps || 0) > 0 ? '+' : '' }}{{ set.diffReps || 0 }} Reps.</span>
+															<span class="p-1 text-contrast text-center min-w-20 block rounded-sm bg-slate-400" [ngClass]="{'!bg-green-300': (set.diffWeight || 0) > 0 , '!bg-red-300': (set.diffWeight || 0) < 0}">{{ (set.diffWeight || 0) > 0 ? '+' : '' }} {{ set.diffWeight || 0 }} Kgs.</span>
+														</div>
+													</div>
+												</div>
+											}
+										</div>
+									</div>
+								}
+							}
+						 </div>
+					 </div>
+					<div (click)="onToggleSeePrevExerc(workout.id!, exerc)"
 							class="w-full  rounded-bl-lg rounded-br-lg bg-primary text-center z-[999]">
 							@if (loadingMap().get(LOADING_KEYS.close_exercise) && prevExercId === exerc.id) {
 								<nz-icon class="text-white w-4 h-4 text-xs" nzType="loading" nzTheme="outline" />

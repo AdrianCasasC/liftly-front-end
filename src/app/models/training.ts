@@ -7,9 +7,14 @@ export interface ExerciseSet {
 	weight: number;
 }
 
+export interface PrevExerciseSet extends ExerciseSet {
+	diffReps?: number;
+	diffWeight?: number;
+}
+
 export interface PrevExercise {
 	date: string;
-	sets: ExerciseSet[];
+	sets: PrevExerciseSet[];
 }
 
 export interface Exercise {
