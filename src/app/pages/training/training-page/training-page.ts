@@ -311,8 +311,8 @@ export class TrainingPage implements OnInit, OnDestroy {
       sets
     }
     this._exerciseService.updateExercise(this.editExercId?.toString() ?? '', editedExercise).subscribe({
-      next: ({id, name, sets, prevs}) => {
-        this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, {id, name, sets, prevs})
+      next: ({id, name, sets}) => {
+        this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, {id, name, sets, prevs: []})
         this.onCloseEditing();
       }
     });
