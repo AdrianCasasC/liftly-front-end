@@ -1,8 +1,9 @@
 import { Component, input, output } from '@angular/core';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 
 @Component({
   selector: 'liftly-add-button',
-  imports: [],
+  imports: [NzIconModule],
   templateUrl: './add-button.html',
   styleUrl: './add-button.scss',
 })
@@ -15,6 +16,7 @@ export class AddButton {
   title = input<string>('Añadir');
   buttonType = input<'button' | 'reset' | 'submit'>('button');
   disabled = input<boolean>(false);
+  loading = input<boolean>(false);
 
   /* Outputs */
   save = output<void>();
