@@ -531,7 +531,7 @@
 		</div>
 		}
 	</div>
-	<liftly-add-button id=saveContainer [addButtonText]="'Añadir Ejercicio'" [saveButtonText]="'Guardar'"
+	<liftly-add-button id=saveContainer [loading]="loadingMap().get(LOADING_KEYS.create_workout) || false" [addButtonText]="'Añadir Ejercicio'" [saveButtonText]="'Guardar'"
 		[cancelButtonText]="'Cancelar'" [buttonType]="'submit'" [disabled]="workoutForm.invalid"
 		(save)="onConfirmCreateNewWorkout()" (add)="onAddExercise()" (cancel)="onCancelNewWorkout()" />
 </form>

@@ -104,7 +104,6 @@ export class TrainingService extends RequestService {
   }
 
   createWorkout(workout: Workout, date: string): Observable<Workout> {
-    const mapKey = 'create';
     this._loadingService.setLoading(LOADING_KEYS.create_workout, true);
     return this.create<Workout>(this._url, workout, { creationDate: date}).pipe(
       tap(resp => this._notificationService.createSuccess('¡Entrenamiento  creado! ✅')),
