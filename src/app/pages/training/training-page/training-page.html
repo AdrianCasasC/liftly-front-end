@@ -169,51 +169,60 @@
 								<nz-icon (click)="onEditExercise(exerc)" class="text-primary text-xl" nzType="edit" nzTheme="outline" />
 							</div>
 							@for (set of exerc.sets; let setInd = $index; track setInd) {
-							<p class="text-xs text-black font-bold rounded-sm p-1 bg-[#6d6b6b] mb-1">Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg
+							<p class="text-xs text-black font-bold rounded-sm p-1 bg-[#6d6b6b] mb-1">Serie {{ setInd + 1}} x {{
+								set.reps }} x {{ set.weight }} kg
 							</p>
 							}
 							}
 
 						</div>
-						
-					
+
+
 					</div>
 					<!-- Collapse content -->
-					 <div class="overflow-hidden " [ngClass]="{'collapse-content_open': showPrevStates.get(`show_${workout.id}_${exerc.id}`), 'collapse-content_closed': !showPrevStates.get(`show_${workout.id}_${exerc.id}`)}">
-						 <div class="w-full bg-terciary_bg p-3 flex flex-col gap-2" >
+					<div class="overflow-hidden "
+						[ngClass]="{'collapse-content_open': showPrevStates.get(`show_${workout.id}_${exerc.id}`), 'collapse-content_closed': !showPrevStates.get(`show_${workout.id}_${exerc.id}`)}">
+						<div class="w-full bg-terciary_bg p-3 flex flex-col gap-2">
 							@if (!exerc.prevs.length) {
-								<p class="text-center text-md text-terciary font-bold">No se han encontrado coincidencias de este ejercicio en anteriores entrenamientos 🤨</p>
+							<p class="text-center text-md text-terciary font-bold">No se han encontrado coincidencias de este
+								ejercicio en anteriores entrenamientos 🤨</p>
 							} @else {
-								@for (prev of exerc.prevs; track $index) {
-									<div class="flex flex-col">
-										<span class="font-bold mb-1 text-terciary underline">{{ prev.date | dateFormat }}</span>
-										<div class="flex flex-col gap-1">
-											@for (set of prev.sets; let setInd = $index; track setInd) {
-												<div class="flex justify-between">
-													<!-- <span class="p-1 bg-[#864646] rounded-sm text-contrast">Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</span> -->
-													<div class="flex items-center justify-between w-full gap-1 p-1 bg-[#864646] rounded-sm text-contrast">
-														<span>Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</span>
-														<div class="flex gap-1">
-															<span class="p-1 text-contrast text-center min-w-20 block rounded-sm bg-slate-400" [ngClass]="{'!bg-green-300': (set.diffReps || 0) > 0 , '!bg-red-300': (set.diffReps || 0) < 0}">{{ (set.diffReps || 0) > 0 ? '+' : '' }}{{ set.diffReps || 0 }} Reps.</span>
-															<span class="p-1 text-contrast text-center min-w-20 block rounded-sm bg-slate-400" [ngClass]="{'!bg-green-300': (set.diffWeight || 0) > 0 , '!bg-red-300': (set.diffWeight || 0) < 0}">{{ (set.diffWeight || 0) > 0 ? '+' : '' }} {{ set.diffWeight || 0 }} Kgs.</span>
-														</div>
-													</div>
-												</div>
-											}
+							@for (prev of exerc.prevs; track $index) {
+							<div class="flex flex-col">
+								<span class="font-bold mb-1 text-terciary underline">{{ prev.date | dateFormat }}</span>
+								<div class="flex flex-col gap-1">
+									@for (set of prev.sets; let setInd = $index; track setInd) {
+									<div class="flex justify-between">
+										<!-- <span class="p-1 bg-[#864646] rounded-sm text-contrast">Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</span> -->
+										<div
+											class="flex items-center justify-between w-full gap-1 p-1 bg-[#864646] rounded-sm text-contrast">
+											<span>Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</span>
+											<div class="flex gap-1">
+												<span class="p-1 text-contrast text-center min-w-20 block rounded-sm bg-slate-400"
+													[ngClass]="{'!bg-green-300': (set.diffReps || 0) > 0 , '!bg-red-300': (set.diffReps || 0) < 0}">{{
+													(set.diffReps || 0) > 0 ? '+' : '' }}{{ set.diffReps || 0 }} Reps.</span>
+												<span class="p-1 text-contrast text-center min-w-20 block rounded-sm bg-slate-400"
+													[ngClass]="{'!bg-green-300': (set.diffWeight || 0) > 0 , '!bg-red-300': (set.diffWeight || 0) < 0}">{{
+													(set.diffWeight || 0) > 0 ? '+' : '' }} {{ set.diffWeight || 0 }} Kgs.</span>
+											</div>
 										</div>
 									</div>
-								}
+									}
+								</div>
+							</div>
 							}
-						 </div>
-					 </div>
-					<div (click)="onToggleSeePrevExerc(workout.id!, exerc)"
-							class="w-full  rounded-bl-lg rounded-br-lg bg-primary text-center z-[999]">
-							@if (loadingMap().get(LOADING_KEYS.close_exercise) && prevExercId === exerc.id) {
-								<nz-icon class="text-white w-4 h-4 text-xs" nzType="loading" nzTheme="outline" />
-							} @else {
-								<span class="text-white">{{ showPrevStates.get(`show_${workout.id}_${exerc.id}`) ? 'Esconder' : 'Ver anteriores' }}</span>
 							}
 						</div>
+					</div>
+					<div (click)="onToggleSeePrevExerc(workout.id!, exerc)"
+						class="w-full  rounded-bl-lg rounded-br-lg bg-primary text-center z-[999]">
+						@if (loadingMap().get(LOADING_KEYS.close_exercise) && prevExercId === exerc.id) {
+						<nz-icon class="text-white w-4 h-4 text-xs" nzType="loading" nzTheme="outline" />
+						} @else {
+						<span class="text-white">{{ showPrevStates.get(`show_${workout.id}_${exerc.id}`) ? 'Esconder' : 'Ver
+							anteriores' }}</span>
+						}
+					</div>
 					<div [id]="'delete_' + exerc.id?.toString()" (click)="onDeleteExercise(workoutIdx, exerc.id!)"
 						class="absolute top-0 right-0 w-0 h-full z-10 flex items-center justify-center">
 						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -355,7 +364,7 @@
 				}
 
 				@if (!isAddingNewExercise) {
-				<button (click)="onAddExerciseEdition(workout?.id!)"
+				<button (click)="onAddExerciseEdition(workout)"
 					class="text-md inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 w-full gradient-primary py-6"><svg
 						_ngcontent-ng-c1310402835="" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
 						fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -531,9 +540,10 @@
 		</div>
 		}
 	</div>
-	<liftly-add-button id=saveContainer [loading]="loadingMap().get(LOADING_KEYS.create_workout) || false" [addButtonText]="'Añadir Ejercicio'" [saveButtonText]="'Guardar'"
-		[cancelButtonText]="'Cancelar'" [buttonType]="'submit'" [disabled]="workoutForm.invalid"
-		(save)="onConfirmCreateNewWorkout()" (add)="onAddExercise()" (cancel)="onCancelNewWorkout()" />
+	<liftly-add-button id=saveContainer [loading]="loadingMap().get(LOADING_KEYS.create_workout) || false"
+		[addButtonText]="'Añadir Ejercicio'" [saveButtonText]="'Guardar'" [cancelButtonText]="'Cancelar'"
+		[buttonType]="'submit'" [disabled]="workoutForm.invalid" (save)="onConfirmCreateNewWorkout()"
+		(add)="onAddExercise()" (cancel)="onCancelNewWorkout()" />
 </form>
 }
 
