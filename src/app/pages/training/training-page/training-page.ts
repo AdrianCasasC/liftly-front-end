@@ -5,7 +5,7 @@ import { Exercise, ExerciseName, ExerciseSet, GymExercise, MuscleGroup, Workout 
 import { ToLabelPipe } from '@app/pipes/to-label-pipe';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import {AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { minLengthArray } from '@app/validators/validators';
 import { TrainingService } from '@app/services/training';
 import { NzCollapseModule } from 'ng-zorro-antd/collapse';
@@ -71,7 +71,7 @@ export class TrainingPage implements OnInit, OnDestroy {
     sets: this._fb.array([this._fb.group({
       orderNumber: [0],
       reps: [null],
-      weight: [null] 
+      weight: [null]
     })])
   });
   newExercForm = this._fb.group({
@@ -80,7 +80,7 @@ export class TrainingPage implements OnInit, OnDestroy {
     sets: this._fb.array([this._fb.group({
       orderNumber: [0],
       reps: [null],
-      weight: [null] 
+      weight: [null]
     })])
   });
 
@@ -166,7 +166,7 @@ export class TrainingPage implements OnInit, OnDestroy {
       name: ['', Validators.required],
       sets: this._fb.array([this._fb.group({
         reps: [null],
-        weight: [null] 
+        weight: [null]
       })])
     });
     exerciseForm.get('muscle')?.valueChanges.subscribe((value: string | null) => {
@@ -178,14 +178,19 @@ export class TrainingPage implements OnInit, OnDestroy {
     this.exercises.push(exerciseForm);
   }
 
-  onAddExerciseEdition(workoutId: number): void {
-    this.edditingWorkoutId = workoutId;
+  onAddExerciseEdition(workout: Workout): void {
+    const lastExercise = workout.exercises[workout.exercises.length - 1];
+    const lastExerciseMuscle = getMuscleGroupByExercise(lastExercise);
+    this.newExercForm.patchValue({
+      muscle: lastExerciseMuscle,
+    })
+    this.edditingWorkoutId = workout.id!;
     this.isAddingNewExercise = true;
   }
 
   onConfirmAddExercise(workoutIdx: number): void {
     const newExercSets: ExerciseSet[] = [];
-    this.newExercForm.value.sets?.forEach(({orderNumber, reps, weight}) => {
+    this.newExercForm.value.sets?.forEach(({ orderNumber, reps, weight }) => {
       newExercSets.push({
         orderNumber: orderNumber ?? 0,
         reps: reps ?? 0,
@@ -197,8 +202,8 @@ export class TrainingPage implements OnInit, OnDestroy {
       prevs: [],
       sets: newExercSets
     }
-    this._exerciseService.createExercise( this.edditingWorkoutId ?? 0, newExerc).subscribe({
-      next: ({id, name, sets, prevs}) => {
+    this._exerciseService.createExercise(this.edditingWorkoutId ?? 0, newExerc).subscribe({
+      next: ({ id, name, sets }) => {
         this.isAddingNewExercise = false;
         this.newExercForm.reset();
         const setsArray = this.newExercForm.get('sets') as FormArray;
@@ -206,9 +211,9 @@ export class TrainingPage implements OnInit, OnDestroy {
         setsArray.push(this._fb.group({
           orderNumber: [0],
           reps: [null],
-          weight: [null] 
+          weight: [null]
         }));
-        this._trainingService.refreshCreateWorkoutExercise(workoutIdx, { id, name, sets, prevs})
+        this._trainingService.refreshCreateWorkoutExercise(workoutIdx, { id, name, sets, prevs: [] })
       }
     });
   }
@@ -219,19 +224,19 @@ export class TrainingPage implements OnInit, OnDestroy {
 
   onReplicateSerie(exerciseForm: FormGroup): void {
     const newFormSets = exerciseForm.get('sets') as FormArray;
-    if (newFormSets?.value?.length && newFormSets.value.length > 0 ) {
+    if (newFormSets?.value?.length && newFormSets.value.length > 0) {
       const lastSet = newFormSets.value[newFormSets.value.length - 1]
       const set = this._fb.group({
         orderNumber: [lastSet.orderNumber + 1],
         reps: [lastSet.reps],
-        weight: [lastSet.weight] 
+        weight: [lastSet.weight]
       });
       newFormSets.push(set);
     } else {
       newFormSets.push(this._fb.group({
         orderNumber: [0],
         reps: null,
-        weight: null 
+        weight: null
       }))
     }
   }
@@ -248,7 +253,7 @@ export class TrainingPage implements OnInit, OnDestroy {
     })
   }
 
-  onActiveCollapse(workoutId: number, active: boolean):void {
+  onActiveCollapse(workoutId: number, active: boolean): void {
     this.activeWorkout = active ? workoutId : null;
   }
 
@@ -259,7 +264,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   onEditExercise(exercise: Exercise): void {
     this.editExercId = exercise.id!;
     const editSets = this._fb.array(
-      exercise.sets.map(({reps, weight, orderNumber}) => this._fb.group({
+      exercise.sets.map(({ reps, weight, orderNumber }) => this._fb.group({
         reps,
         weight,
         orderNumber
@@ -311,12 +316,12 @@ export class TrainingPage implements OnInit, OnDestroy {
       sets
     }
     this._exerciseService.updateExercise(this.editExercId?.toString() ?? '', editedExercise).subscribe({
-      next: ({id, name, sets}) => {
-        this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, {id, name, sets, prevs: []})
+      next: ({ id, name, sets }) => {
+        this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, { id, name, sets, prevs: [] })
         this.onCloseEditing();
       }
     });
-    
+
   }
 
   onToggleSeePrevExerc(workoutId: number, exerc: Exercise): void {
@@ -347,7 +352,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   onTouchStart(event: TouchEvent | MouseEvent, elementId: string) {
     this.draggingElement = document.getElementById(elementId) as HTMLDivElement;
     this.deleteElement = document.getElementById('delete_' + elementId) as HTMLDivElement;
-    
+
     this.isDragging = true;
     this.startX = this.getClientX(event);
     if (this.draggingElement) {
@@ -362,9 +367,9 @@ export class TrainingPage implements OnInit, OnDestroy {
     if (!this.isDragging) return;
     if (this.draggingElement && this.deleteElement) {
       this.currentX = this.getClientX(event);
-      
+
       const diffX = this.currentX - this.startX + this.base;
-  
+
       if (diffX > 0) return
       this.draggingElement.style.transform = `translateX(${diffX}px)`;
       this.deleteElement.style.width = `${(diffX + -6) * -1}px`;
@@ -372,7 +377,7 @@ export class TrainingPage implements OnInit, OnDestroy {
       this.draggingElement.style.backgroundColor = `rgba(97, 74, 54, ${opacity})`;
       this.deleteElement.style.backgroundColor = `rgba(208, 47, 47, ${opacity})`;
     }
-    
+
   }
 
   onTouchEnd() {
