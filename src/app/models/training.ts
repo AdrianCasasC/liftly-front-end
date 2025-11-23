@@ -17,6 +17,11 @@ export interface PrevExercise {
 	sets: PrevExerciseSet[];
 }
 
+export interface NewListExercise {
+	name: string;
+	muscle: MuscleGroup;
+}
+
 export interface Exercise {
 	id?: number;
 	name: ExerciseName;
@@ -86,9 +91,15 @@ export type ExerciseName =
 | 'rumanian_dumbell_dead_lift'
 | 'hip_thrust'
 | 'glute_kick'
-| 'twins';
+| 'abductor_machine'
+| 'glute_machine'
+| 'twins'
+| 'onblique_pulley_abs'
+| 'pulley_crunches'
+| 'machine_crunches'
+| 'abs_roll'
 
-export type MuscleGroup = 'chest' | 'back' | 'leg' | 'arm' | 'shoulder'
+export type MuscleGroup = 'chest' | 'back' | 'leg' | 'arm' | 'shoulder' | 'abs';
 
 export interface GymExercise extends DropdownItem<ExerciseName> {
 	muscle: MuscleGroup;
