@@ -19,7 +19,8 @@
       "@app/*": ["app/*"],
       "@pages/*": ["app/pages/*"],
       "@components/*": ["app/components/*"],
-      "@services/*": ["app/services/*"]
+      "@services/*": ["app/services/*"],
+      "@directives/*": ["app/directives/*"]
     }
   },
   "angularCompilerOptions": {

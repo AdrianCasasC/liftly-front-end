@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { AddButton } from '@app/components/add-button/add-button';
 import { getExercisesByMuscleGroup, getMuscleGroupByExercise, GYM_EXERCISES, MUSCLE_GROUPS } from '@app/constants/training';
-import { Exercise, ExerciseName, ExerciseSet, GymExercise, MuscleGroup, Workout } from '@app/models/training';
+import { Exercise, ExerciseName, ExerciseSet, GymExercise, MuscleGroup, NewListExercise, Workout } from '@app/models/training';
 import { ToLabelPipe } from '@app/pipes/to-label-pipe';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -15,10 +15,11 @@ import { LOADING_KEYS } from '@app/constants/loading';
 import { ActivatedRoute } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { DateFormatPipe } from '@app/pipes/date-format-pipe';
+import { ModalComponent } from "@app/components/modal/modal.component";
 
 @Component({
   selector: 'app-training-page',
-  imports: [AddButton, NzDropDownModule, NzIconModule, ToLabelPipe, ReactiveFormsModule, NzCollapseModule, NgClass, DateFormatPipe],
+  imports: [AddButton, NzDropDownModule, NzIconModule, ToLabelPipe, ReactiveFormsModule, NzCollapseModule, NgClass, DateFormatPipe, ModalComponent],
   templateUrl: './training-page.html',
   styleUrl: './training-page.scss',
 })
@@ -59,6 +60,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   allWorkouts = this._trainingService.allWorkouts;
   selectedWorkout = this._trainingService.workout;
   loadingMap = this._loadingService.loadingMap;
+  showNewListExercModal = signal<boolean>(false);
 
   /* Forms */
   workoutForm: FormGroup = this._fb.group({
@@ -82,6 +84,10 @@ export class TrainingPage implements OnInit, OnDestroy {
       reps: [null],
       weight: [null]
     })])
+  });
+  newListExercForm = this._fb.group({
+    name: ['', Validators.required],
+    muscle: ['', Validators.required],
   });
 
   get exercises() {
@@ -395,5 +401,19 @@ export class TrainingPage implements OnInit, OnDestroy {
         this.deleteElement.style.backgroundColor = 'transparent';
       }
     }
+  }
+
+  setNewListExercModalState(state: boolean): void {
+    this.showNewListExercModal.set(state);
+  }
+
+  onConfirmNewListExercModal(): void {
+    if (this.newListExercForm.invalid) return;
+    this._exerciseService.createNewListExercise(this.newListExercForm.value as NewListExercise).subscribe({
+      next: () => {
+        this.showNewListExercModal.set(false);
+        this.getAllWorkouts();
+      }
+    });
   }
 }

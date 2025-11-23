@@ -236,6 +236,41 @@ export const GYM_EXERCISES: GymExercise[] = [
 		label: 'Gemelos',
 		value: 'twins',
 		muscle: 'leg'
+	},
+	{
+		label: 'Abductor',
+		value: 'abductor_machine',
+		muscle: 'leg'
+	},
+	{
+		label: 'Gluteo (Máquina)',
+		value: 'glute_machine',
+		muscle: 'leg'
+	},
+	{
+		label: 'Oblicuos (Polea)',
+		value: 'onblique_pulley_abs',
+		muscle: 'abs'
+	},
+	{
+		label: 'Abdomen (Máquina)',
+		value: 'machine_crunches',
+		muscle: 'abs'
+	},
+	{
+		label: 'Abdomen (Polea)',
+		value: 'pulley_crunches',
+		muscle: 'abs'
+	},
+	{
+		label: 'Rueda abdominal',
+		value: 'abs_roll',
+		muscle: 'abs'
+	},
+	{
+		label: 'Gemelos',
+		value: 'twins',
+		muscle: 'leg'
 	}
 ]
 
@@ -263,5 +298,9 @@ export const  MUSCLE_GROUPS: DropdownItem<MuscleGroup>[] = [
 	{
 		label: 'Brazo',
 		value: 'arm'
+	},
+	{
+		label: 'Abdomen',
+		value: 'abs'
 	}
 ]
