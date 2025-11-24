@@ -41,7 +41,7 @@
     Todavía no hay entrenamientos.<br />¡Crea tu primer entrenamiento para empezar!
   </p>
   } @else { @for (workout of allWorkouts(); let workoutIdx = $index; track workoutIdx) {
-  <nz-collapse class="border-none" [nzGhost]="true" [nzExpandIconPosition]="'end'">
+  <nz-collapse class="border-none mb-3" [nzGhost]="true" [nzExpandIconPosition]="'end'">
     <nz-collapse-panel
       [class.shadow-primary]="activeWorkout === workout.id"
       (nzActiveChange)="onActiveCollapse(workout?.id || 0, $event)"
@@ -684,8 +684,34 @@
   </nz-collapse>
 
   <ng-template #collapseHeader>
-    <h3 class="text-lg text-left text-contrast ml-2 font-bold flex items-center gap-2">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg text-left text-contrast ml-2 font-bold flex items-center gap-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-dumbbell h-5 w-5 text-primary"
+        >
+          <path d="M14.4 14.4 9.6 9.6"></path>
+          <path
+            d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"
+          ></path>
+          <path d="m21.5 21.5-1.4-1.4"></path>
+          <path d="M3.9 3.9 2.5 2.5"></path>
+          <path
+            d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"
+          ></path>
+        </svg>
+        {{ workout.name }}
+      </h3>
       <svg
+        (click)="onShowConfirmDeleteWorkout(workout); $event.stopPropagation()"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -695,20 +721,37 @@
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        class="lucide lucide-dumbbell h-5 w-5 text-primary"
+        class="lucide lucide-trash2 text-red-600 w-5 h-5"
       >
-        <path d="M14.4 14.4 9.6 9.6"></path>
+        <path _ngcontent-ng-c2602123476="" _ngcontent-ng-c787324783="" d="M3 6h18"></path>
         <path
-          d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"
+          _ngcontent-ng-c2602123476=""
+          _ngcontent-ng-c787324783=""
+          d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"
         ></path>
-        <path d="m21.5 21.5-1.4-1.4"></path>
-        <path d="M3.9 3.9 2.5 2.5"></path>
         <path
-          d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"
+          _ngcontent-ng-c2602123476=""
+          _ngcontent-ng-c787324783=""
+          d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"
         ></path>
+        <line
+          _ngcontent-ng-c2602123476=""
+          _ngcontent-ng-c787324783=""
+          x1="10"
+          x2="10"
+          y1="11"
+          y2="17"
+        ></line>
+        <line
+          _ngcontent-ng-c2602123476=""
+          _ngcontent-ng-c787324783=""
+          x1="14"
+          x2="14"
+          y1="11"
+          y2="17"
+        ></line>
       </svg>
-      {{ workout.name }}
-    </h3>
+    </div>
     <p class="text-muted-foreground text-left">
       {{ workout.exercises.length }} {{ workout.exercises.length > 1 ? 'ejercicios' : 'ejercicio' }}
     </p>
@@ -1101,4 +1144,36 @@
       </button>
     </div>
   </form>
+</ng-template>
+
+<liftly-modal
+  [show]="!!deleteWorkout"
+  [showCloseIcon]="true"
+  [content]="deleteWorkoutModal"
+  (closeModal)="deleteWorkout = null"
+></liftly-modal>
+
+<ng-template #deleteWorkoutModal>
+  <div
+    class="flex flex-col items-center justify-center gap-4 px-3 py-11 w-[80vw] rounded-lg bg-card shadow-primary"
+  >
+    <h3 class="text-2xl text-contrast text-center font-bold">
+      ¿Estás seguro de eliminar {{ deleteWorkout?.name }}?
+    </h3>
+    <p>Esta acción no se puede deshacer.</p>
+    <div class="flex gap-2">
+      <button
+        (click)="deleteWorkout = null"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 flex-1 py-6 text-lg"
+      >
+        Cancelar
+      </button>
+      <button
+        (click)="onDeleteWorkout(deleteWorkout!)"
+        class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 flex-1 gradient-primary py-6 text-lg"
+      >
+        Eliminar
+      </button>
+    </div>
+  </div>
 </ng-template>

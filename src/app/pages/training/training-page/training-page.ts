@@ -51,6 +51,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   isAddingNewExercise: boolean = false;
   edditingWorkoutId: number | null = null;
   deleteExercId: number | null = null;
+  deleteWorkout: Workout | null = null;
   showFlotingSaveButton = false;
   private observer?: IntersectionObserver;
 
@@ -429,9 +430,23 @@ export class TrainingPage implements OnInit, OnDestroy {
     this._exerciseService.createCollectionExercise(this.newListExercForm.value as CollectionExercise).subscribe({
       next: () => {
         this.showNewListExercModal.set(false);
+        this.newListExercForm.reset();
         this.getAllWorkouts();
         this.getExercisesCollection();
       }
     });
+  }
+
+  onShowConfirmDeleteWorkout(workout: Workout): void {
+    this.deleteWorkout = workout;
+  }
+
+  onDeleteWorkout(workout: Workout): void {
+    this._trainingService.deleteWorkout(workout.id!).subscribe({
+      next: () => {
+        this.deleteWorkout = null;
+        this.getAllWorkouts();
+      }
+    })
   }
 }

@@ -36,7 +36,7 @@ export class TrainingService extends RequestService {
         }))
       }),
       catchError((err) => {
-        this._notificationService.createError('No se pudo obtener los entrenamientos ⚠️')
+        this._notificationService.createError('No se pudo obtener los entrenamientos')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.get_all_workouts))
@@ -48,7 +48,7 @@ export class TrainingService extends RequestService {
     return this.getAll<CollectionExercise>('/exercises/list', params).pipe(
       tap((res) => this._collectionExercises.set(res)),
       catchError((err) => {
-        this._notificationService.createError('No se pudo obtener la colección de ejercicios ⚠️')
+        this._notificationService.createError('No se pudo obtener la colección de ejercicios')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.get_exercises_collection))
@@ -111,7 +111,7 @@ export class TrainingService extends RequestService {
     return this.getById<Workout>(id, this._url).pipe(
       tap(res => this._workout.set(res)),
       catchError((err) => {
-        this._notificationService.createError('No se pudo obtener el entrenamiento ⚠️')
+        this._notificationService.createError('No se pudo obtener el entrenamiento')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.get_workout_by_id))
@@ -121,9 +121,9 @@ export class TrainingService extends RequestService {
   createWorkout(workout: Workout, date: string): Observable<Workout> {
     this._loadingService.setLoading(LOADING_KEYS.create_workout, true);
     return this.create<Workout>(this._url, workout, { creationDate: date}).pipe(
-      tap(resp => this._notificationService.createSuccess('¡Entrenamiento  creado! ✅')),
+      tap(resp => this._notificationService.createSuccess('¡Entrenamiento  creado!')),
       catchError((err) => {
-        this._notificationService.createError('No se pudo crear el entrenamiento ⚠️')
+        this._notificationService.createError('No se pudo crear el entrenamiento')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.create_workout))
@@ -134,26 +134,25 @@ export class TrainingService extends RequestService {
     const mapKey = 'update';
     this._loadingService.setLoading(LOADING_KEYS.update_workout, true);
     this.update<Workout>(this._url, workout, id).pipe(
-      tap(resp => this._notificationService.createSuccess('¡Entrenamiento  guardado! ✅')),
+      tap(resp => this._notificationService.createSuccess('¡Entrenamiento  guardado!')),
       catchError((err) => {
-        this._notificationService.createError('No se pudo guardar el entrenamiento ⚠️')
+        this._notificationService.createError('No se pudo guardar el entrenamiento')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.update_workout))
     ).subscribe();
   }
 
-  deleteWorkout(id: string): void {
-    const mapKey = 'delete';
+  deleteWorkout(id: number): Observable<void> {
     this._loadingService.setLoading(LOADING_KEYS.delete_workout, true);
-    this.delete(id, this._url).pipe(
-      tap(() => this._notificationService.createSuccess('¡Entrenamiento  eliminado! ✅')),
+    return this.delete(this._url, id).pipe(
+      tap(() => this._notificationService.createSuccess('¡Entrenamiento  eliminado!')),
       catchError((err) => {
-        this._notificationService.createError('No se pudo eliminar el entrenamiento ⚠️')
+        this._notificationService.createError('No se pudo eliminar el entrenamiento')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.delete_workout))
-    ).subscribe();
+    )
   }
 
   getExercisesByMuscleGroup(muscleGroup: MuscleGroup): GymExercise[] {
