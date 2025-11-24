@@ -17,8 +17,9 @@ export interface PrevExercise {
 	sets: PrevExerciseSet[];
 }
 
-export interface NewListExercise {
-	name: string;
+export interface CollectionExercise {
+	label: string;
+	value: string;
 	muscle: MuscleGroup;
 }
 
@@ -101,6 +102,6 @@ export type ExerciseName =
 
 export type MuscleGroup = 'chest' | 'back' | 'leg' | 'arm' | 'shoulder' | 'abs';
 
-export interface GymExercise extends DropdownItem<ExerciseName> {
+export interface GymExercise extends DropdownItem<ExerciseName | string> {
 	muscle: MuscleGroup;
 }

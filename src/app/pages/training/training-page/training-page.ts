@@ -1,7 +1,7 @@
-import { AfterViewInit, Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { AddButton } from '@app/components/add-button/add-button';
-import { getExercisesByMuscleGroup, getMuscleGroupByExercise, GYM_EXERCISES, MUSCLE_GROUPS } from '@app/constants/training';
-import { Exercise, ExerciseName, ExerciseSet, GymExercise, MuscleGroup, NewListExercise, Workout } from '@app/models/training';
+import { MUSCLE_GROUPS } from '@app/constants/training';
+import { Exercise, ExerciseName, ExerciseSet, GymExercise, MuscleGroup, CollectionExercise, Workout } from '@app/models/training';
 import { ToLabelPipe } from '@app/pipes/to-label-pipe';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -43,7 +43,6 @@ export class TrainingPage implements OnInit, OnDestroy {
   LOADING_KEYS = LOADING_KEYS;
   newWorkout: Workout | null = null;
   muscleGroups = MUSCLE_GROUPS;
-  gymExercises = GYM_EXERCISES;
   activeWorkout: number | null = null;
   editExercId: number | null = null;
   prevExercId: number | null = null;
@@ -52,6 +51,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   isAddingNewExercise: boolean = false;
   edditingWorkoutId: number | null = null;
   deleteExercId: number | null = null;
+  deleteWorkout: Workout | null = null;
   showFlotingSaveButton = false;
   private observer?: IntersectionObserver;
 
@@ -61,6 +61,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   selectedWorkout = this._trainingService.workout;
   loadingMap = this._loadingService.loadingMap;
   showNewListExercModal = signal<boolean>(false);
+  gymExercises = this._trainingService.gymExercises;
 
   /* Forms */
   workoutForm: FormGroup = this._fb.group({
@@ -86,8 +87,9 @@ export class TrainingPage implements OnInit, OnDestroy {
     })])
   });
   newListExercForm = this._fb.group({
-    name: ['', Validators.required],
+    label: ['', Validators.required],
     muscle: ['', Validators.required],
+    value: [''],
   });
 
   get exercises() {
@@ -100,6 +102,10 @@ export class TrainingPage implements OnInit, OnDestroy {
 
   private getAllWorkouts(): void {
     this._trainingService.getAllWorkouts({ date: this.day }).subscribe();
+  }
+
+  private getExercisesCollection(): void {
+    this._trainingService.getExercisesCollection().subscribe();
   }
 
   private fillShowPrevState(workouts: Workout[]): void {
@@ -122,12 +128,13 @@ export class TrainingPage implements OnInit, OnDestroy {
   }
 
   constructor() {
-    effect(() => this.fillShowPrevState(this.allWorkouts()))
+    effect(() => this.fillShowPrevState(this.allWorkouts()));
   }
 
   ngOnInit(): void {
     this.day = this._route.snapshot.queryParamMap.get('date') ?? '';
     this.getAllWorkouts();
+    this.getExercisesCollection();
   }
 
   ngOnDestroy(): void {
@@ -139,7 +146,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   }
 
   getExerciseOptionsByMuscle(muscle: string): GymExercise[] {
-    return getExercisesByMuscleGroup(muscle as MuscleGroup);
+    return this._trainingService.getExercisesByMuscleGroup(muscle as MuscleGroup);
   }
 
   onCreateNewWorkout(): void {
@@ -186,7 +193,7 @@ export class TrainingPage implements OnInit, OnDestroy {
 
   onAddExerciseEdition(workout: Workout): void {
     const lastExercise = workout.exercises[workout.exercises.length - 1];
-    const lastExerciseMuscle = getMuscleGroupByExercise(lastExercise);
+    const lastExerciseMuscle = this._trainingService.getMuscleGroupByExercise(lastExercise);
     this.newExercForm.patchValue({
       muscle: lastExerciseMuscle,
     })
@@ -253,7 +260,7 @@ export class TrainingPage implements OnInit, OnDestroy {
     })
   }
 
-  onSelectExercise(value: ExerciseName, formGroup: FormGroup): void {
+  onSelectExercise(value: ExerciseName | string, formGroup: FormGroup): void {
     formGroup.patchValue({
       name: value
     })
@@ -279,7 +286,7 @@ export class TrainingPage implements OnInit, OnDestroy {
 
     this.editExercForm.patchValue({
       name: exercise.name,
-      muscle: getMuscleGroupByExercise(exercise)
+      muscle: this._trainingService.getMuscleGroupByExercise(exercise)
       // Don't patch 'sets' directly since it's a FormArray, handle manually below
     });
 
@@ -409,11 +416,37 @@ export class TrainingPage implements OnInit, OnDestroy {
 
   onConfirmNewListExercModal(): void {
     if (this.newListExercForm.invalid) return;
-    this._exerciseService.createNewListExercise(this.newListExercForm.value as NewListExercise).subscribe({
+    
+    // Sanitize the name value and set it to the label control
+    const nameValue = this.newListExercForm.get('label')?.value || '';
+    const sanitizedLabel = nameValue
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/\s+/g, '_'); // Replace spaces with underscores
+    
+    this.newListExercForm.patchValue({ value: sanitizedLabel });
+    
+    this._exerciseService.createCollectionExercise(this.newListExercForm.value as CollectionExercise).subscribe({
       next: () => {
         this.showNewListExercModal.set(false);
+        this.newListExercForm.reset();
         this.getAllWorkouts();
+        this.getExercisesCollection();
       }
     });
+  }
+
+  onShowConfirmDeleteWorkout(workout: Workout): void {
+    this.deleteWorkout = workout;
+  }
+
+  onDeleteWorkout(workout: Workout): void {
+    this._trainingService.deleteWorkout(workout.id!).subscribe({
+      next: () => {
+        this.deleteWorkout = null;
+        this.getAllWorkouts();
+      }
+    })
   }
 }

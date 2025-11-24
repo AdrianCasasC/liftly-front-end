@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { RequestService } from './request';
-import { ClosestExercise, Exercise, NewListExercise } from '@app/models/training';
+import { ClosestExercise, Exercise, CollectionExercise } from '@app/models/training';
 import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification';
 import { LoadingService } from './loading-service';
@@ -21,7 +21,7 @@ export class ExerciseService extends RequestService {
     return this.update<Exercise>(this._url, editedExercise, id).pipe(
       tap(() => this._notificationService.createSuccess('¡Ejercicio guardado!')),
       catchError((err) => {
-        this._notificationService.createError('No se pudo editar el ejercicio ⚠️')
+        this._notificationService.createError('No se pudo editar el ejercicio')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.update_exercise))
@@ -33,7 +33,7 @@ export class ExerciseService extends RequestService {
     return this.create<Exercise>(this._url, newExercise, { workoutId }).pipe(
       tap(() => this._notificationService.createSuccess('¡Ejercicio añadido!')),
       catchError((err) => {
-        this._notificationService.createError('No se pudo crear el ejercicio ⚠️')
+        this._notificationService.createError('No se pudo crear el ejercicio')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.create_exercise))
@@ -45,7 +45,7 @@ export class ExerciseService extends RequestService {
     return this.delete(this._url, id).pipe(
       tap(() => this._notificationService.createSuccess('¡Ejercicio eliminado!')),
       catchError((err) => {
-        this._notificationService.createError('No se pudo eliminar el ejercicio ⚠️')
+        this._notificationService.createError('No se pudo eliminar el ejercicio')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.delete_exercise))
@@ -56,19 +56,19 @@ export class ExerciseService extends RequestService {
     this._loadingService.setLoading(LOADING_KEYS.close_exercise, true);
     return this.getAll<ClosestExercise>(`${this._url}/closest`, { date, name}).pipe(
       catchError((err) => {
-        this._notificationService.createError('No se pudo obtener ejercicios anteriores ⚠️')
+        this._notificationService.createError('No se pudo obtener ejercicios anteriores')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.close_exercise))
     )
   }
 
-  createNewListExercise(newListExercise: NewListExercise): Observable<NewListExercise> {
+  createCollectionExercise(CollectionExercise: CollectionExercise): Observable<CollectionExercise> {
     this._loadingService.setLoading(LOADING_KEYS.create_list_exercise, true);
-    return this.create<NewListExercise>(`${this._url}/list`, newListExercise).pipe(
+    return this.create<CollectionExercise>(`${this._url}/list`, CollectionExercise).pipe(
       tap(() => this._notificationService.createSuccess('¡Ejercicio añadido a la lista!')),
       catchError((err) => {
-        this._notificationService.createError('No se pudo añadir el ejercicio a la lista ⚠️')
+        this._notificationService.createError('No se pudo añadir el ejercicio a la lista')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.create_list_exercise))

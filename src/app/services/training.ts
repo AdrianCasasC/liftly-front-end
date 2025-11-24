@@ -1,10 +1,11 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { RequestService } from './request';
-import { ClosestExercise, Exercise, ExerciseSet, Workout } from '@app/models/training';
+import { ClosestExercise, CollectionExercise, Exercise, ExerciseSet, GymExercise, MuscleGroup, Workout } from '@app/models/training';
 import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification';
 import { LoadingService } from './loading-service';
 import { LOADING_KEYS } from '@app/constants/loading';
+import { GYM_EXERCISES } from '@app/constants/training';
 
 @Injectable({
   providedIn: 'root',
@@ -15,10 +16,12 @@ export class TrainingService extends RequestService {
   private readonly _loadingService = inject(LoadingService);
   /*  Signals */
   private readonly _workout = signal<Workout | null>(null);
+  private readonly _collectionExercises = signal<CollectionExercise[]>([]);
   private readonly _allWorkouts = signal<Workout[]>([]);
   
   workout = this._workout.asReadonly()
   allWorkouts = this._allWorkouts.asReadonly()
+  gymExercises = computed(() => [...GYM_EXERCISES, ...this._collectionExercises()]);
 
   /* Variables */
   private readonly _url = '/workouts';
@@ -33,10 +36,22 @@ export class TrainingService extends RequestService {
         }))
       }),
       catchError((err) => {
-        this._notificationService.createError('No se pudo obtener los entrenamientos ⚠️')
+        this._notificationService.createError('No se pudo obtener los entrenamientos')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.get_all_workouts))
+    )
+  }
+
+  getExercisesCollection(params?: Record<string, any>): Observable<CollectionExercise[]> {
+    this._loadingService.setLoading(LOADING_KEYS.get_exercises_collection, true);
+    return this.getAll<CollectionExercise>('/exercises/list', params).pipe(
+      tap((res) => this._collectionExercises.set(res)),
+      catchError((err) => {
+        this._notificationService.createError('No se pudo obtener la colección de ejercicios')
+        return throwError(() => new Error(err));
+      }),
+      finalize(() => this._loadingService.removeLoading(LOADING_KEYS.get_exercises_collection))
     )
   }
 
@@ -96,7 +111,7 @@ export class TrainingService extends RequestService {
     return this.getById<Workout>(id, this._url).pipe(
       tap(res => this._workout.set(res)),
       catchError((err) => {
-        this._notificationService.createError('No se pudo obtener el entrenamiento ⚠️')
+        this._notificationService.createError('No se pudo obtener el entrenamiento')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.get_workout_by_id))
@@ -106,9 +121,9 @@ export class TrainingService extends RequestService {
   createWorkout(workout: Workout, date: string): Observable<Workout> {
     this._loadingService.setLoading(LOADING_KEYS.create_workout, true);
     return this.create<Workout>(this._url, workout, { creationDate: date}).pipe(
-      tap(resp => this._notificationService.createSuccess('¡Entrenamiento  creado! ✅')),
+      tap(resp => this._notificationService.createSuccess('¡Entrenamiento  creado!')),
       catchError((err) => {
-        this._notificationService.createError('No se pudo crear el entrenamiento ⚠️')
+        this._notificationService.createError('No se pudo crear el entrenamiento')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.create_workout))
@@ -119,25 +134,32 @@ export class TrainingService extends RequestService {
     const mapKey = 'update';
     this._loadingService.setLoading(LOADING_KEYS.update_workout, true);
     this.update<Workout>(this._url, workout, id).pipe(
-      tap(resp => this._notificationService.createSuccess('¡Entrenamiento  guardado! ✅')),
+      tap(resp => this._notificationService.createSuccess('¡Entrenamiento  guardado!')),
       catchError((err) => {
-        this._notificationService.createError('No se pudo guardar el entrenamiento ⚠️')
+        this._notificationService.createError('No se pudo guardar el entrenamiento')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.update_workout))
     ).subscribe();
   }
 
-  deleteWorkout(id: string): void {
-    const mapKey = 'delete';
+  deleteWorkout(id: number): Observable<void> {
     this._loadingService.setLoading(LOADING_KEYS.delete_workout, true);
-    this.delete(id, this._url).pipe(
-      tap(() => this._notificationService.createSuccess('¡Entrenamiento  eliminado! ✅')),
+    return this.delete(this._url, id).pipe(
+      tap(() => this._notificationService.createSuccess('¡Entrenamiento  eliminado!')),
       catchError((err) => {
-        this._notificationService.createError('No se pudo eliminar el entrenamiento ⚠️')
+        this._notificationService.createError('No se pudo eliminar el entrenamiento')
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.delete_workout))
-    ).subscribe();
+    )
+  }
+
+  getExercisesByMuscleGroup(muscleGroup: MuscleGroup): GymExercise[] {
+    return this.gymExercises().filter(exerc => exerc.muscle === muscleGroup);
+  }
+
+  getMuscleGroupByExercise(exercise: Exercise): MuscleGroup {
+    return this.gymExercises().find(exerc => exerc.value === exercise.name)?.muscle ?? 'arm';
   }
 }
