@@ -313,7 +313,7 @@
 
               <div class="flex w-full justify-between">
                 <p class="font-semibold text-primary text-md">
-                  {{ exerc.name | toLabel : gymExercises }}
+                  {{ exerc.name | toLabel : gymExercises() }}
                 </p>
                 <nz-icon
                   (click)="onEditExercise(exerc)"
@@ -1021,14 +1021,14 @@
     class="shadow-primary w-[80vw] flex flex-col items-center justify-between p-3 rounded-lg bg-background text-left relative z-20 w-full"
   >
     <label
-      for="name"
+      for="label"
       class="w-full text-contrast mb-2 block text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
       >Nombre</label
     >
     <input
       type="text"
-      name="name"
-      formControlName="name"
+      name="label"
+      formControlName="label"
       class="mb-2 w-full text-contrast flex h-10 rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm ng-untouched ng-pristine ng-valid"
     />
 

@@ -10,5 +10,6 @@ export const LOADING_KEYS: Record<LoadingKeys, LoadingKeys> = {
 	create_exercise: 'create_exercise',
 	delete_exercise: 'delete_exercise',
 	close_exercise: 'close_exercise',
-	create_list_exercise: 'create_list_exercise'
+	create_list_exercise: 'create_list_exercise',
+	get_exercises_collection: 'get_exercises_collection'
 }

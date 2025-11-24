@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { RequestService } from './request';
-import { ClosestExercise, Exercise, NewListExercise } from '@app/models/training';
+import { ClosestExercise, Exercise, CollectionExercise } from '@app/models/training';
 import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification';
 import { LoadingService } from './loading-service';
@@ -63,9 +63,9 @@ export class ExerciseService extends RequestService {
     )
   }
 
-  createNewListExercise(newListExercise: NewListExercise): Observable<NewListExercise> {
+  createCollectionExercise(CollectionExercise: CollectionExercise): Observable<CollectionExercise> {
     this._loadingService.setLoading(LOADING_KEYS.create_list_exercise, true);
-    return this.create<NewListExercise>(`${this._url}/list`, newListExercise).pipe(
+    return this.create<CollectionExercise>(`${this._url}/list`, CollectionExercise).pipe(
       tap(() => this._notificationService.createSuccess('¡Ejercicio añadido a la lista!')),
       catchError((err) => {
         this._notificationService.createError('No se pudo añadir el ejercicio a la lista ⚠️')

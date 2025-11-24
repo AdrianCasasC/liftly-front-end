@@ -1,10 +1,11 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { RequestService } from './request';
-import { ClosestExercise, Exercise, ExerciseSet, Workout } from '@app/models/training';
+import { ClosestExercise, CollectionExercise, Exercise, ExerciseSet, GymExercise, MuscleGroup, Workout } from '@app/models/training';
 import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification';
 import { LoadingService } from './loading-service';
 import { LOADING_KEYS } from '@app/constants/loading';
+import { GYM_EXERCISES } from '@app/constants/training';
 
 @Injectable({
   providedIn: 'root',
@@ -15,10 +16,12 @@ export class TrainingService extends RequestService {
   private readonly _loadingService = inject(LoadingService);
   /*  Signals */
   private readonly _workout = signal<Workout | null>(null);
+  private readonly _collectionExercises = signal<CollectionExercise[]>([]);
   private readonly _allWorkouts = signal<Workout[]>([]);
   
   workout = this._workout.asReadonly()
   allWorkouts = this._allWorkouts.asReadonly()
+  gymExercises = computed(() => [...GYM_EXERCISES, ...this._collectionExercises()]);
 
   /* Variables */
   private readonly _url = '/workouts';
@@ -37,6 +40,18 @@ export class TrainingService extends RequestService {
         return throwError(() => new Error(err));
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.get_all_workouts))
+    )
+  }
+
+  getExercisesCollection(params?: Record<string, any>): Observable<CollectionExercise[]> {
+    this._loadingService.setLoading(LOADING_KEYS.get_exercises_collection, true);
+    return this.getAll<CollectionExercise>('/exercises/list', params).pipe(
+      tap((res) => this._collectionExercises.set(res)),
+      catchError((err) => {
+        this._notificationService.createError('No se pudo obtener la colección de ejercicios ⚠️')
+        return throwError(() => new Error(err));
+      }),
+      finalize(() => this._loadingService.removeLoading(LOADING_KEYS.get_exercises_collection))
     )
   }
 
@@ -139,5 +154,13 @@ export class TrainingService extends RequestService {
       }),
       finalize(() => this._loadingService.removeLoading(LOADING_KEYS.delete_workout))
     ).subscribe();
+  }
+
+  getExercisesByMuscleGroup(muscleGroup: MuscleGroup): GymExercise[] {
+    return this.gymExercises().filter(exerc => exerc.muscle === muscleGroup);
+  }
+
+  getMuscleGroupByExercise(exercise: Exercise): MuscleGroup {
+    return this.gymExercises().find(exerc => exerc.value === exercise.name)?.muscle ?? 'arm';
   }
 }
