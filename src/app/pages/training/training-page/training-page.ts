@@ -16,10 +16,13 @@ import { ActivatedRoute } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { DateFormatPipe } from '@app/pipes/date-format-pipe';
 import { ModalComponent } from "@app/components/modal/modal.component";
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
+import { Observable } from 'rxjs';
+
 
 @Component({
   selector: 'app-training-page',
-  imports: [AddButton, NzDropDownModule, NzIconModule, ToLabelPipe, ReactiveFormsModule, NzCollapseModule, NgClass, DateFormatPipe, ModalComponent],
+  imports: [AddButton, NzDropDownModule, NzIconModule, ToLabelPipe, ReactiveFormsModule, NzCollapseModule, NgClass, DateFormatPipe, ModalComponent, NzPopconfirmModule],
   templateUrl: './training-page.html',
   styleUrl: './training-page.scss',
 })
@@ -53,6 +56,7 @@ export class TrainingPage implements OnInit, OnDestroy {
   deleteExercId: number | null = null;
   deleteWorkout: Workout | null = null;
   showFlotingSaveButton = false;
+  beforeConfirm = this.beforeDeleteWorkout.bind(this);
   private observer?: IntersectionObserver;
 
   /* Signals */
@@ -303,7 +307,8 @@ export class TrainingPage implements OnInit, OnDestroy {
     this._exerciseService.deleteExercise(id).subscribe({
       next: () => {
         this.deleteExercId = null;
-        this._trainingService.refreshDeleteWorkoutExercise(workoutIdx, id)
+        this._trainingService.refreshDeleteWorkoutExercise(workoutIdx, id);
+        this.resetPosition();
       }
     });
   }
@@ -385,12 +390,19 @@ export class TrainingPage implements OnInit, OnDestroy {
 
       if (diffX > 0) return
       this.draggingElement.style.transform = `translateX(${diffX}px)`;
-      this.deleteElement.style.width = `${(diffX + -6) * -1}px`;
+      this.deleteElement.style.width = `${(diffX + -12) * -1}px`;
       let opacity = diffX > -this.threshold ? -diffX / this.threshold : 1
       this.draggingElement.style.backgroundColor = `rgba(97, 74, 54, ${opacity})`;
       this.deleteElement.style.backgroundColor = `rgba(208, 47, 47, ${opacity})`;
     }
 
+  }
+
+  private resetPosition(): void {
+    this.draggingElement!.style.transform = `translateX(${0}px)`;
+    this.draggingElement!.style.backgroundColor = 'hsl(var(--background))';
+    this.deleteElement!.style.width = `${0}px`;
+    this.deleteElement!.style.backgroundColor = 'transparent';
   }
 
   onTouchEnd() {
@@ -400,12 +412,9 @@ export class TrainingPage implements OnInit, OnDestroy {
       this.distance = rect.left || 0;
       if (this.distance <= -this.threshold) {
         this.draggingElement.style.transform = `translateX(${-this.threshold}px)`;
-        this.deleteElement.style.width = `${this.threshold + 6}px`;
+        this.deleteElement.style.width = `${this.threshold + 12}px`;
       } else {
-        this.draggingElement.style.transform = `translateX(${0}px)`;
-        this.draggingElement.style.backgroundColor = 'hsl(var(--background))';
-        this.deleteElement.style.width = `${0}px`;
-        this.deleteElement.style.backgroundColor = 'transparent';
+        this.resetPosition();
       }
     }
   }
@@ -437,16 +446,14 @@ export class TrainingPage implements OnInit, OnDestroy {
     });
   }
 
-  onShowConfirmDeleteWorkout(workout: Workout): void {
-    this.deleteWorkout = workout;
+  beforeDeleteWorkout(): Observable<boolean> {
+    return this._trainingService.deleteWorkout(this.deleteWorkout!.id!)
   }
 
-  onDeleteWorkout(workout: Workout): void {
-    this._trainingService.deleteWorkout(workout.id!).subscribe({
-      next: () => {
-        this.deleteWorkout = null;
-        this.getAllWorkouts();
-      }
-    })
+
+  onConfirmDeleteWorkout(): void {
+    this.deleteWorkout = null;
+    this.getAllWorkouts();
   }
 }
+

@@ -380,24 +380,11 @@
               } }
             </div>
           </div>
-          <div
-            (click)="onToggleSeePrevExerc(workout.id!, exerc)"
-            class="w-full rounded-bl-lg rounded-br-lg bg-primary text-center z-[999]"
-          >
-            @if (loadingMap().get(LOADING_KEYS.close_exercise) && prevExercId === exerc.id) {
-            <nz-icon class="text-white w-4 h-4 text-xs" nzType="loading" nzTheme="outline" />
-            } @else {
-            <span
-              class="text-white"
-              >{{ showPrevStates.get(`show_${workout.id}_${exerc.id}`) ? 'Esconder' : 'Ver
-							anteriores' }}</span
-            >
-            }
-          </div>
+
           <div
             [id]="'delete_' + exerc.id?.toString()"
             (click)="onDeleteExercise(workoutIdx, exerc.id!)"
-            class="absolute top-0 right-0 w-0 h-full z-10 flex items-center justify-center"
+            class="absolute top-0 right-0 w-0 h-full z-10 flex items-center justify-center rounded-br-lg rounded-tr-lg"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -409,7 +396,7 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="lucide lucide-trash2 text-white w-5 h-5"
+              class="lucide lucide-trash2 text-white w-5 h-5 translate-x-1"
             >
               <path d="M3 6h18"></path>
               <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
@@ -417,6 +404,21 @@
               <line x1="10" x2="10" y1="11" y2="17"></line>
               <line x1="14" x2="14" y1="11" y2="17"></line>
             </svg>
+          </div>
+
+          <div
+            (click)="onToggleSeePrevExerc(workout.id!, exerc)"
+            class="w-full rounded-bl-lg rounded-br-lg bg-primary text-center z-[999] relative"
+          >
+            @if (loadingMap().get(LOADING_KEYS.close_exercise) && prevExercId === exerc.id) {
+            <nz-icon class="text-white w-4 h-4 text-xs" nzType="loading" nzTheme="outline" />
+            } @else {
+            <span
+              class="text-white"
+              >{{ showPrevStates.get(`show_${workout.id}_${exerc.id}`) ? 'Esconder' : 'Ver
+							anteriores' }}</span
+            >
+            }
           </div>
         </div>
 
@@ -711,7 +713,19 @@
         {{ workout.name }}
       </h3>
       <svg
-        (click)="onShowConfirmDeleteWorkout(workout); $event.stopPropagation()"
+        nz-popconfirm
+        [nzPopconfirmTitle]="'¿Estás seguro de eliminar ' + deleteWorkout?.name + '?'"
+        [nzBeforeConfirm]="beforeConfirm"
+        nzPopconfirmPlacement="bottomRight"
+        (nzOnConfirm)="onConfirmDeleteWorkout()"
+        (nzOnCancel)="deleteWorkout = null"
+        [nzCancelText]="'Cancelar'"
+        [nzOkText]="'Eliminar'"
+        [nzOkButtonProps]="{ nzType: 'primary' }"
+        [nzCancelButtonProps]="{ nzType: 'default' }"
+        nzPopconfirmArrowPointAtCenter="true"
+        nzPopconfirmOverlayClassName="pop-confirm"
+        (click)="deleteWorkout = workout; $event.stopPropagation()"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
         height="24"
@@ -1034,16 +1048,26 @@
 </form>
 } @if (showFlotingSaveButton && isAddingNewWorkout()) {
 <div class="fixed right-5 bottom-5 flex gap-4 pt-4 z-[999]">
+  @if (loadingMap().get(LOADING_KEYS.create_workout)) {
   <button
     (click)="onConfirmCreateNewWorkout()"
-    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 flex-1 gradient-primary py-6 text-lg"
+    class="w-24 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 flex-1 gradient-primary py-6 text-lg"
+    [disabled]="workoutForm.invalid"
+  >
+    <nz-icon nzType="loading" nzTheme="outline" />
+  </button>
+  } @else {
+  <button
+    (click)="onConfirmCreateNewWorkout()"
+    class="w-24 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 flex-1 gradient-primary py-6 text-lg"
     [disabled]="workoutForm.invalid"
   >
     Guardar
   </button>
+  }
   <button
     (click)="onCancelNewWorkout()"
-    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 flex-1 py-6 text-lg"
+    class="w-24 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 flex-1 py-6 text-lg"
   >
     Cancelar
   </button>
@@ -1146,7 +1170,7 @@
   </form>
 </ng-template>
 
-<liftly-modal
+<!-- <liftly-modal
   [show]="!!deleteWorkout"
   [showCloseIcon]="true"
   [content]="deleteWorkoutModal"
@@ -1155,8 +1179,13 @@
 
 <ng-template #deleteWorkoutModal>
   <div
-    class="flex flex-col items-center justify-center gap-4 px-3 py-11 w-[80vw] rounded-lg bg-card shadow-primary"
+    class="flex flex-col items-center justify-center gap-4 px-3 py-11 w-[80vw] rounded-lg bg-card shadow-primary relative"
   >
+    @if (loadingMap().get(LOADING_KEYS.delete_workout)) {
+    <div class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/70">
+      <nz-icon class="text-primary w-8 h-8 text-[32px]" nzType="loading" nzTheme="outline" />
+    </div>
+    }
     <h3 class="text-2xl text-contrast text-center font-bold">
       ¿Estás seguro de eliminar {{ deleteWorkout?.name }}?
     </h3>
@@ -1176,4 +1205,4 @@
       </button>
     </div>
   </div>
-</ng-template>
+</ng-template> -->

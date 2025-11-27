@@ -5,16 +5,18 @@ import { computed, Injectable, signal } from '@angular/core';
 })
 export class NotificationService {
   private _notification = signal<Notification | null>(null);
+  private _showNotification = signal<boolean>(false);
   notification = this._notification.asReadonly();
+  showNotification = this._showNotification.asReadonly();
 
   closeNotification(): void {
-    this._notification.set(null);
+    this._showNotification.set(false);
   }
 
   createNotification(content: Notification) {
     this._notification.set(content);
-
-    setTimeout(() => this.closeNotification(), 5000);
+    this._showNotification.set(true);
+    setTimeout(() => this.closeNotification(), 3000);
   }
 
   createSuccess(message: string): void {

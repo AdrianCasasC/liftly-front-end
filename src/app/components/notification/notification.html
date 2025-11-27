@@ -1,21 +1,21 @@
 <div
-  class="fixed border-[1px] right-4 bottom-4 w-fit max-w-[300px] bg-white rounded-sm shadow-lg pr-8 pl-4 py-4 flex items-center opacity-0 translate-y-[150%] transition-[opacity,transform] duration-300 ease-in-out z-[9999]"
-  [class.!opacity-100]="notification()"
-  [class.!translate-y-0]="notification()"
+  class="fixed border-2 right-4 bottom-4 w-fit max-w-[300px] gap-2 rounded-sm shadow-lg p-3 pr-4 flex items-center opacity-0 translate-y-[150%] transition-[opacity,transform] duration-300 ease-in-out z-[9999]"
+  [class.!opacity-100]="showNotification()"
+  [class.!translate-y-0]="showNotification()"
   [ngClass]="{
-    'bg-card border-primary': theme() === 'dark',
-    'bg-white border-black': theme() === 'light'
+    'bg-[#424242]': theme() === 'dark',
+    'bg-card': theme() === 'light'
   }"
 >
   @if (notification()?.type === 'success') {
-  <nz-icon nz-icon nzType="check-circle" nzTheme="outline" class="w-6 text-green-400" />
+  <nz-icon nz-icon nzType="check-circle" nzTheme="outline" class="text-green-400" />
   } @if (notification()?.type === 'error') {
-  <nz-icon nz-icon nzType="warning" nzTheme="outline" class="w-6 text-yellow-400" />
+  <nz-icon nz-icon nzType="warning" nzTheme="outline" class="text-yellow-400" />
   }
   <div
-    class="notification-card"
+    class="notification-card text-[10px]"
     [ngClass]="{
-      'text-primary': theme() === 'dark',
+      'text-white': theme() === 'dark',
       'text-black': theme() === 'light'
     }"
     (click)="onCloseNotification()"
@@ -24,7 +24,7 @@
   </div>
   <nz-icon
     (click)="onCloseNotification()"
-    class="cursor-pointer absolute top-1 right-1 w-4"
+    class="cursor-pointer absolute top-1 right-1 w-2 h-2 text-black"
     nz-icon
     nzType="close"
     nzTheme="outline"
