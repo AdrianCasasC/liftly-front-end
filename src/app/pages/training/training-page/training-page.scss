@@ -24,5 +24,21 @@
 	.ant-collapse > .ant-collapse-item.ant-collapse-no-arrow > .ant-collapse-header {
 		padding-right: 12px;
 	}
+
+	.pop-confirm {
+	.ant-popover-inner-content {
+		border-radius: 12px;
+		.ant-btn {
+			border: none;
+			background-color: hsl(var(--card));
+			color: white;
+			&.ant-btn-primary {
+				background-color: hsl(var(--primary));
+			}
+		}
+	}
+}
 	
 }
+
+

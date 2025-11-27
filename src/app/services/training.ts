@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { RequestService } from './request';
 import { ClosestExercise, CollectionExercise, Exercise, ExerciseSet, GymExercise, MuscleGroup, Workout } from '@app/models/training';
-import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
+import { catchError, finalize, map, Observable, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification';
 import { LoadingService } from './loading-service';
 import { LOADING_KEYS } from '@app/constants/loading';
@@ -143,10 +143,13 @@ export class TrainingService extends RequestService {
     ).subscribe();
   }
 
-  deleteWorkout(id: number): Observable<void> {
+  deleteWorkout(id: number): Observable<boolean> {
     this._loadingService.setLoading(LOADING_KEYS.delete_workout, true);
     return this.delete(this._url, id).pipe(
-      tap(() => this._notificationService.createSuccess('¡Entrenamiento  eliminado!')),
+      map(() => {
+        this._notificationService.createSuccess('¡Entrenamiento  eliminado!');
+        return true;
+      }),
       catchError((err) => {
         this._notificationService.createError('No se pudo eliminar el entrenamiento')
         return throwError(() => new Error(err));

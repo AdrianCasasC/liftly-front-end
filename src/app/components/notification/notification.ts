@@ -19,6 +19,7 @@ export class Notification {
 
   /* Signals */
   notification = this._notificationService.notification;
+  showNotification = this._notificationService.showNotification;
 
   onCloseNotification(): void {
     this._notificationService.closeNotification();
