@@ -151,5 +151,19 @@ All colors MUST be HSL.
   .transition-smooth {
     transition: var(--transition-smooth);
   }
+
+  .green-neon {
+    color: #39ff14;
+    text-shadow:
+    0 0 5px #39ff14,
+    0 0 10px #39ff14,
+  }
+
+  .red-neon {
+    color: #ff2d2d;
+    text-shadow:
+    0 0 5px #ff2d2d,
+    0 0 10px #ff2d2d,
+  }
 }
 
