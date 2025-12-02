@@ -295,7 +295,7 @@
                 </button>
                 <div class="flex gap-4 pt-4">
                   <button
-                    (click)="onSubmitEditing(workoutIdx, exercIdx)"
+                    (click)="onSubmitEditing(workoutIdx, exerc, exercIdx)"
                     class="flex items-center justify-center whitespace-nowrap rounded-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-6 w-full px-4 flex-1 gradient-primary py-4 text-md"
                     [disabled]="editExercForm.invalid"
                   >
@@ -323,7 +323,9 @@
                 />
               </div>
               @for (set of exerc.sets; let setInd = $index; track setInd) {
-              <p class="text-xs text-black font-bold rounded-sm p-1 bg-[#6d6b6b] mb-1">
+              <p
+                class="text-md text-[#cdcdcd] text-center font-bold p-2 mb-1 border-b-2 border-[#6d6b6b]"
+              >
                 Serie {{ setInd + 1 }} x {{ set.reps }} x {{ set.weight }} kg
               </p>
               } }
@@ -334,39 +336,41 @@
             class="overflow-hidden"
             [ngClass]="{'collapse-content_open': showPrevStates.get(`show_${workout.id}_${exerc.id}`), 'collapse-content_closed': !showPrevStates.get(`show_${workout.id}_${exerc.id}`)}"
           >
-            <div class="w-full bg-terciary_bg p-3 flex flex-col gap-2">
+            <div class="w-full bg-[#363636] p-3 flex flex-col gap-2">
               @if (!exerc.prevs.length) {
-              <p class="text-center text-md text-terciary font-bold">
+              <p class="text-center text-md text-contrast font-bold">
                 No se han encontrado coincidencias de este ejercicio en anteriores entrenamientos 🤨
               </p>
               } @else { @for (prev of exerc.prevs; track $index) {
               <div class="flex flex-col">
-                <span class="font-bold mb-1 text-terciary underline">{{
-                  prev.date | dateFormat
-                }}</span>
+                <span
+                  class="font-bold text-black mb-1 p-2 border-b-2 rounded-lg bg-primary w-fit"
+                  >{{ prev.date | dateFormat }}</span
+                >
                 <div class="flex flex-col gap-1">
                   @for (set of prev.sets; let setInd = $index; track setInd) {
                   <div class="flex justify-between">
                     <!-- <span class="p-1 bg-[#864646] rounded-sm text-contrast">Serie {{ setInd + 1}} x {{ set.reps }} x {{ set.weight }} kg</span> -->
-                    <div
-                      class="flex items-center justify-between w-full gap-1 p-1 bg-[#864646] rounded-sm text-contrast"
-                    >
-                      <span>Serie {{ setInd + 1 }} x {{ set.reps }} x {{ set.weight }} kg</span>
+                    <div class="flex items-center justify-between w-full gap-1 p-1 text-contrast">
+                      <span class="whitespace-nowrap min-w-[150px] text-contrast"
+                        >Serie {{ setInd + 1 }} x {{ set.reps }} x {{ set.weight }} kg</span
+                      >
+                      <span class="w-full h-[1px] bg-[#6d6b6b] mx-2"></span>
                       <div class="flex gap-1">
                         <span
-                          class="p-1 text-contrast text-center min-w-20 block rounded-sm bg-slate-400"
+                          class="p-1 text-right min-w-20 block text-slate-400"
                           [ngClass]="{
-                            '!bg-green-300': (set.diffReps || 0) > 0,
-                            '!bg-red-300': (set.diffReps || 0) < 0
+                            'green-neon': (set.diffReps || 0) > 0,
+                            'red-neon': (set.diffReps || 0) < 0
                           }"
                           >{{ (set.diffReps || 0) > 0 ? '+' : ''
                           }}{{ set.diffReps || 0 }} Reps.</span
                         >
                         <span
-                          class="p-1 text-contrast text-center min-w-20 block rounded-sm bg-slate-400"
+                          class="p-1 text-right min-w-20 block text-slate-400"
                           [ngClass]="{
-                            '!bg-green-300': (set.diffWeight || 0) > 0,
-                            '!bg-red-300': (set.diffWeight || 0) < 0
+                            'green-neon': (set.diffWeight || 0) > 0,
+                            'red-neon': (set.diffWeight || 0) < 0
                           }"
                           >{{ (set.diffWeight || 0) > 0 ? '+' : '' }}
                           {{ set.diffWeight || 0 }} Kgs.</span

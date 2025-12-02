@@ -1,6 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { RequestService } from './request';
-import { ClosestExercise, CollectionExercise, Exercise, ExerciseSet, GymExercise, MuscleGroup, Workout } from '@app/models/training';
+import { ClosestExercise, CollectionExercise, Exercise, ExerciseSet, GymExercise, MuscleGroup, PrevExercise, Workout } from '@app/models/training';
 import { catchError, finalize, map, Observable, tap, throwError } from 'rxjs';
 import { NotificationService } from './notification';
 import { LoadingService } from './loading-service';
@@ -86,20 +86,24 @@ export class TrainingService extends RequestService {
     return set.weight - prevSet.weight;
   }
 
+  transformPrevExercises(prevExercises: ClosestExercise[], exercise: Exercise): PrevExercise[] {
+    return prevExercises.map(prevExerc => ({ 
+      date: prevExerc.workoutDate,
+      sets: prevExerc.sets.map((prevSet, idx) => ({
+        ...prevSet,
+        diffReps: this.getSetRepsDiff(exercise.sets[idx], prevSet) || 0,
+        diffWeight: this.getSetWeightDiff(exercise.sets[idx], prevSet) || 0
+      })),
+    }))
+  }
+
   fillPrevExercises(prevExercises: ClosestExercise[], workoutId: number, exercise: Exercise): void {
     const workoutIdx = this._allWorkouts().findIndex(workout => workout.id === workoutId);
     if (workoutIdx < 0) return;
     this._allWorkouts.update(prev => {
       const exercToFill = prev[workoutIdx].exercises.find(exerc => exerc.id === exercise.id);
       if (exercToFill) {
-        exercToFill.prevs = prevExercises.map(prevExerc => ({ 
-          date: prevExerc.workoutDate,
-          sets: prevExerc.sets.map((prevSet, idx) => ({
-            ...prevSet,
-            diffReps: this.getSetRepsDiff(exercise.sets[idx], prevSet) || 0,
-            diffWeight: this.getSetWeightDiff(exercise.sets[idx], prevSet) || 0
-          })),
-        }))
+        exercToFill.prevs = this.transformPrevExercises(prevExercises, exercise);
       }
       return prev;
     })

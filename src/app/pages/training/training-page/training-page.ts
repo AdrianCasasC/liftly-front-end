@@ -322,7 +322,7 @@ export class TrainingPage implements OnInit, OnDestroy {
     this.editExercId = null;
   }
 
-  onSubmitEditing(workoutIdx: number, exercIdx: number): void {
+  onSubmitEditing(workoutIdx: number, exerc: Exercise, exercIdx: number): void {
     const setsFormValue = this.editExercForm.value.sets as any[];
     const sets: ExerciseSet[] = setsFormValue.map((s, idx) => ({
       reps: s.reps,
@@ -335,7 +335,12 @@ export class TrainingPage implements OnInit, OnDestroy {
     }
     this._exerciseService.updateExercise(this.editExercId?.toString() ?? '', editedExercise).subscribe({
       next: ({ id, name, sets }) => {
-        this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, { id, name, sets, prevs: [] })
+        this._exerciseService.getClosestExercises(this.day, exerc.name).subscribe({
+          next: (prevExerc) => {
+            const prevs = this._trainingService.transformPrevExercises(prevExerc, { id, name, sets, prevs: [] });
+            this._trainingService.refreshWorkoutExerciseByIndex(workoutIdx, exercIdx, { id, name, sets, prevs })
+          }
+        });
         this.onCloseEditing();
       }
     });
@@ -347,6 +352,10 @@ export class TrainingPage implements OnInit, OnDestroy {
     const prevState = this.showPrevStates.get(`show_${workoutId}_${exerc.id}`);
     if (prevState) {
       this.showPrevStates.set(`show_${workoutId}_${exerc.id!}`, !prevState);
+      return;
+    }
+    if (exerc.prevs.length > 0) {
+      this.showPrevStates.set(`show_${workoutId}_${exerc.id}`, true);
       return;
     }
     this._exerciseService.getClosestExercises(this.day, exerc.name).subscribe({
