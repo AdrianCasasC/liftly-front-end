@@ -1,0 +1,78 @@
+:host {
+  --orange: #ff7a00;
+  --black: #111;
+  --bg-light: #fff7f0;
+  display: block;
+}
+
+.container {
+  max-width: 500px;
+  padding: 1.5rem;
+  margin: auto;
+}
+
+.title {
+  text-align: center;
+  color: var(--black);
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+}
+
+.form-card {
+  background: var(--bg-light);
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  margin-bottom: 2rem;
+}
+
+label {
+  font-weight: 600;
+  color: var(--black);
+}
+
+.input {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  border: 2px solid var(--orange);
+  margin: 0.5rem 0 1rem 0;
+}
+
+.btn {
+  background: var(--orange);
+  border: none;
+  width: 100%;
+  padding: 1rem;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #ff8f26;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+}
+
+.empty {
+  text-align: center;
+  color: #555;
+  margin-top: 1rem;
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.4rem;
+  }
+  .form-card {
+    padding: 0.8rem;
+  }
+}
