@@ -1,0 +1,26 @@
+<div class="container">
+  <h1 class="title">Histórico de peso corporal</h1>
+
+  <div class="form-card">
+    <label for="weight">Tu peso (kg)</label>
+
+    <input
+      type="number"
+      id="weight"
+      [ngModel]="weight()"
+      (ngModelChange)="weight.set($event)"
+      class="input text-black"
+      placeholder="e.g. 72.5"
+    />
+
+    <button class="btn" (click)="submitWeigh()">Guardar</button>
+  </div>
+
+  @if (corporalWeights().length > 0) {
+  <div class="chart-container">
+    <canvas id="progressChart"></canvas>
+  </div>
+  } @else {
+  <p class="empty">Todavía no hay registros. ¡Añade tu primer peso corporal!</p>
+  }
+</div>

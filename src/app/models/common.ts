@@ -14,4 +14,6 @@ export type LoadingKeys =
 | 'close_exercise'
 | 'create_exercise'
 | 'create_list_exercise'
-| 'get_exercises_collection';
+| 'get_exercises_collection'
+| 'save_corporal_weight'
+| 'get_all_corporal_weight';
